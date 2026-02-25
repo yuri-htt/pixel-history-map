@@ -115,7 +115,7 @@ function LocationTooltip({
 }) {
   const { refs, floatingStyles } = useFloating({
     placement: placement,
-    strategy: 'absolute',
+    strategy: "absolute",
     middleware: [offset(offsetValue), flip(), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   });
@@ -247,189 +247,193 @@ function App() {
             }
           }}
         >
-        <ComposableMap
-          width={800}
-          height={400}
-          projectionConfig={{ scale: 147 }}
-        >
-          <ZoomableGroup center={[0, 0]} zoom={1}>
-            <Geographies geography={geoUrl}>
-              {({ geographies }) =>
-                geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    style={{
-                      default: {
-                        fill: "#E2E6EA",
-                        outline: "none",
-                        stroke: "none",
-                      },
-                      hover: { fill: "#E2E6EA", outline: "none" },
-                    }}
-                  />
-                ))
-              }
-            </Geographies>
-
-            {/* 各拠点のマーカー */}
-            {filteredLocations.map((location) => {
-              // アニメーションがない場合はスキップ
-              if (location.animations.length === 0) return null;
-              const sizes = getAnimationSizes();
-              const pos = getAnimationPosition(
-                location.position,
-                location.animations,
-              );
-              // 各アニメーションの幅を合計
-              const width = location.animations.reduce((sum, anim) => {
-                const size = anim.size === "small" ? sizes.small : sizes.normal;
-                return sum + size;
-              }, 0);
-              // 最大の高さを取得
-              const height = Math.max(
-                ...location.animations.map((anim) =>
-                  anim.size === "small" ? sizes.small : sizes.normal,
-                ),
-              );
-
-              const isHovered = hoveredLocation === location.name;
-              const isShrinking = shrinkingLocation === location.name;
-              const showCircle = isHovered || isShrinking;
-
-              const handleMouseEnter = () => {
-                setShrinkingLocation(null);
-                setHoveredLocation(location.name);
-              };
-
-              const handleMouseLeave = () => {
-                setHoveredLocation(null);
-                setShrinkingLocation(location.name);
-                // 縮小アニメーション後に状態をクリア
-                setTimeout(() => {
-                  setShrinkingLocation((current) =>
-                    current === location.name ? null : current,
-                  );
-                }, 300); // アニメーション時間と同じ
-              };
-
-              const handleClick = (e) => {
-                e.stopPropagation();
-                // 同じ拠点をクリックした場合は閉じる、別の拠点の場合は切り替える
-                if (clickedLocation === location.name) {
-                  setClickedLocation(null);
-                } else {
-                  setClickedLocation(location.name);
+          <ComposableMap
+            width={800}
+            height={400}
+            projectionConfig={{ scale: 147 }}
+          >
+            <ZoomableGroup center={[0, 0]} zoom={1}>
+              <Geographies geography={geoUrl}>
+                {({ geographies }) =>
+                  geographies.map((geo) => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      style={{
+                        default: {
+                          fill: "#E2E6EA",
+                          outline: "none",
+                          stroke: "none",
+                        },
+                        hover: { fill: "#E2E6EA", outline: "none" },
+                      }}
+                    />
+                  ))
                 }
-              };
+              </Geographies>
 
-              return (
-                <Marker key={location.name} coordinates={location.coordinates}>
-                  {/* Hover時の拡大円 */}
-                  {showCircle && (
+              {/* 各拠点のマーカー */}
+              {filteredLocations.map((location) => {
+                // アニメーションがない場合はスキップ
+                if (location.animations.length === 0) return null;
+                const sizes = getAnimationSizes();
+                const pos = getAnimationPosition(
+                  location.position,
+                  location.animations,
+                );
+                // 各アニメーションの幅を合計
+                const width = location.animations.reduce((sum, anim) => {
+                  const size =
+                    anim.size === "small" ? sizes.small : sizes.normal;
+                  return sum + size;
+                }, 0);
+                // 最大の高さを取得
+                const height = Math.max(
+                  ...location.animations.map((anim) =>
+                    anim.size === "small" ? sizes.small : sizes.normal,
+                  ),
+                );
+
+                const isHovered = hoveredLocation === location.name;
+                const isShrinking = shrinkingLocation === location.name;
+                const showCircle = isHovered || isShrinking;
+
+                const handleMouseEnter = () => {
+                  setShrinkingLocation(null);
+                  setHoveredLocation(location.name);
+                };
+
+                const handleMouseLeave = () => {
+                  setHoveredLocation(null);
+                  setShrinkingLocation(location.name);
+                  // 縮小アニメーション後に状態をクリア
+                  setTimeout(() => {
+                    setShrinkingLocation((current) =>
+                      current === location.name ? null : current,
+                    );
+                  }, 300); // アニメーション時間と同じ
+                };
+
+                const handleClick = (e) => {
+                  e.stopPropagation();
+                  // 同じ拠点をクリックした場合は閉じる、別の拠点の場合は切り替える
+                  if (clickedLocation === location.name) {
+                    setClickedLocation(null);
+                  } else {
+                    setClickedLocation(location.name);
+                  }
+                };
+
+                return (
+                  <Marker
+                    key={location.name}
+                    coordinates={location.coordinates}
+                  >
+                    {/* Hover時の拡大円 */}
+                    {showCircle && (
+                      <circle
+                        r={3}
+                        fill="#FA6120"
+                        opacity="0.6"
+                        className={`hover-circle ${isShrinking ? "shrink" : ""}`}
+                      />
+                    )}
+
+                    <foreignObject
+                      x={pos.x}
+                      y={pos.y}
+                      width={width}
+                      height={height}
+                    >
+                      <div className="animation-container">
+                        {location.animations.map((anim, index) => {
+                          const sizeClass =
+                            anim.size === "small" ? "small" : "normal";
+                          return (
+                            <div
+                              key={index}
+                              className={`${animationComponents[anim.type]} ${sizeClass}`}
+                            />
+                          );
+                        })}
+                      </div>
+                    </foreignObject>
+
                     <circle
                       r={3}
                       fill="#FA6120"
-                      opacity="0.6"
-                      className={`hover-circle ${isShrinking ? "shrink" : ""}`}
+                      style={{ cursor: "pointer" }}
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
+                      onClick={handleClick}
+                      ref={(el) => {
+                        if (el) locationRefs.current[location.name] = el;
+                      }}
                     />
-                  )}
 
-                  <foreignObject
-                    x={pos.x}
-                    y={pos.y}
-                    width={width}
-                    height={height}
-                  >
-                    <div className="animation-container">
-                      {location.animations.map((anim, index) => {
-                        const sizeClass =
-                          anim.size === "small" ? "small" : "normal";
-                        return (
-                          <div
-                            key={index}
-                            className={`${animationComponents[anim.type]} ${sizeClass}`}
-                          />
-                        );
-                      })}
-                    </div>
-                  </foreignObject>
-
-                  <circle
-                    r={3}
-                    fill="#FA6120"
-                    style={{ cursor: "pointer" }}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                    onClick={handleClick}
-                    ref={(el) => {
-                      if (el) locationRefs.current[location.name] = el;
-                    }}
-                  />
-
-                  <text
-                    textAnchor="middle"
-                    y={12}
-                    className="location-label"
-                    style={{ pointerEvents: "none" }}
-                  >
-                    {location.name}
-                  </text>
-                </Marker>
-              );
-            })}
-          </ZoomableGroup>
-        </ComposableMap>
+                    <text
+                      textAnchor="middle"
+                      y={12}
+                      className="location-label"
+                      style={{ pointerEvents: "none" }}
+                    >
+                      {location.name}
+                    </text>
+                  </Marker>
+                );
+              })}
+            </ZoomableGroup>
+          </ComposableMap>
         </div>
 
         {/* --- UIエリア --- */}
         <div className="ui-panel">
-        <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            gap: "12px",
-            justifyContent: "center",
-          }}
-        >
-          <h1 className="year-display">{yearText}</h1>
-          {yearsAgoText && (
-            <span style={{ fontSize: "1rem", color: "#999" }}>
-              {yearsAgoText}
-            </span>
-          )}
-        </div>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="0.1"
-          value={sliderValue}
-          onChange={(e) => setSliderValue(parseFloat(e.target.value))}
-          className="timeline-slider"
-        />
-        <p className="description">スライダーを動かして歴史を観測しよう</p>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: "12px",
+              justifyContent: "center",
+            }}
+          >
+            <h1 className="year-display">{yearText}</h1>
+            {yearsAgoText && (
+              <span style={{ fontSize: "1rem", color: "#999" }}>
+                {yearsAgoText}
+              </span>
+            )}
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="0.1"
+            value={sliderValue}
+            onChange={(e) => setSliderValue(parseFloat(e.target.value))}
+            className="timeline-slider"
+          />
+          <p className="description">スライダーを動かして歴史を観測しよう</p>
         </div>
 
         {/* 全拠点のポップアップを事前にレンダリング */}
         {locationsData.map((locationData) => {
-        const config = getTooltipConfig(locationData.name);
-        return (
-          <LocationTooltip
-            key={locationData.name}
-            locationName={locationData.name}
-            isVisible={clickedLocation === locationData.name}
-            onClose={() => setClickedLocation(null)}
-            locationRef={locationRefs.current[locationData.name]}
-            placement={config.placement}
-            offsetValue={config.offset}
-            filteredLocations={filteredLocations}
-            onShowDetail={(name, description) => {
-              setRightPanelContent({ locationName: name, description });
-              setIsRightPanelOpen(true);
-            }}
-          />
-        );
+          const config = getTooltipConfig(locationData.name);
+          return (
+            <LocationTooltip
+              key={locationData.name}
+              locationName={locationData.name}
+              isVisible={clickedLocation === locationData.name}
+              onClose={() => setClickedLocation(null)}
+              locationRef={locationRefs.current[locationData.name]}
+              placement={config.placement}
+              offsetValue={config.offset}
+              filteredLocations={filteredLocations}
+              onShowDetail={(name, description) => {
+                setRightPanelContent({ locationName: name, description });
+                setIsRightPanelOpen(true);
+              }}
+            />
+          );
         })}
       </div>
 
@@ -447,7 +451,9 @@ function App() {
             <h3>{rightPanelContent.description.title}</h3>
 
             {rightPanelContent.description.period && (
-              <p className="period-text">{rightPanelContent.description.period}</p>
+              <p className="period-text">
+                {rightPanelContent.description.period}
+              </p>
             )}
 
             {rightPanelContent.description.image && (
