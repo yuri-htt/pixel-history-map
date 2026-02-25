@@ -1,0 +1,454 @@
+/* =========================================
+   1. 全体・ベース設定
+   ========================================= */
+:root {
+  --animation-size: 24px; /* 標準アニメーションサイズ */
+  --animation-size-small: 20px; /* 小サイズアニメーション */
+}
+
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  background-color: #f8f8fa;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* =========================================
+   2. レイアウト（画面構成）
+   ========================================= */
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* スクロール禁止 */
+  position: relative;
+}
+
+/* 地図エリア */
+.map-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+/* 操作パネルエリア */
+.ui-panel {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  padding: 20px;
+  background: rgba(40, 40, 40, 0.9) !important;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  pointer-events: auto;
+}
+.timeline-slider {
+  width: 80%;
+  margin-top: 20px;
+}
+
+/* =========================================
+   3. コンポーネント（地図・ユニット）
+   ========================================= */
+/* 世界地図本体 */
+.rsm-svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* 縄文人ドット絵 */
+.pixel-unit {
+  width: 64px;
+  height: 64px;
+  background-image: url("/making-house.png"); /*making-doki hunting-and-gathering making-house*/
+  background-size: calc(64px * 7) 64px; /* 7コマ */
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+  animation: walk-cycle 3.5s steps(7) infinite;
+}
+
+/* アニメーションコンテナ */
+.animation-container {
+  display: flex;
+  align-items: center;
+}
+
+/* 狩猟採取アニメーション */
+.hunting-animation {
+  background-image: url("/hunting-and-gathering.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.hunting-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: hunting-cycle-normal 1.6s steps(4) infinite;
+}
+
+.hunting-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: hunting-cycle-small 1.6s steps(4) infinite;
+}
+
+/* イノシシアニメーション */
+.boar-animation {
+  background-image: url("/boar.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.boar-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: boar-cycle-normal 1.6s steps(4) infinite;
+}
+
+.boar-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: boar-cycle-small 1.6s steps(4) infinite;
+}
+
+/* 土器作成アニメーション */
+.making-doki-animation {
+  background-image: url("/making-doki.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.making-doki-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: making-doki-cycle-normal 1.6s steps(4) infinite;
+}
+
+.making-doki-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: making-doki-cycle-small 1.6s steps(4) infinite;
+}
+
+/* 穀物採取アニメーション */
+.grain-gathering-animation {
+  background-image: url("/grain-gathering.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.grain-gathering-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: grain-gathering-cycle-normal 1.6s steps(4) infinite;
+}
+
+.grain-gathering-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: grain-gathering-cycle-small 1.6s steps(4) infinite;
+}
+
+/* 家を作るアニメーション */
+.making-house-animation {
+  background-image: url("/making-house.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.making-house-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 7) var(--animation-size); /* 7コマ */
+  animation: making-house-cycle-normal 2.8s steps(7) infinite;
+}
+
+.making-house-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 7)
+    var(--animation-size-small); /* 7コマ */
+  animation: making-house-cycle-small 2.8s steps(7) infinite;
+}
+
+/* 地域名ラベル */
+.location-label {
+  font-size: 6px;
+  fill: #000000;
+  font-family: system-ui, sans-serif;
+  font-weight: normal;
+}
+
+/* Hover時の拡大円アニメーション */
+.hover-circle {
+  animation: expand-circle 0.3s ease-out forwards;
+  transform-origin: center;
+}
+
+.hover-circle.shrink {
+  animation: shrink-circle 0.3s ease-in forwards;
+}
+
+@keyframes expand-circle {
+  0% {
+    r: 3;
+    opacity: 0.4;
+  }
+  100% {
+    r: 15;
+    opacity: 0.4;
+  }
+}
+
+@keyframes shrink-circle {
+  0% {
+    r: 15;
+    opacity: 0.4;
+  }
+  100% {
+    r: 3;
+    opacity: 0;
+  }
+}
+
+/* 吹き出しオーバーレイ */
+.tooltip-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  background: transparent;
+  pointer-events: auto;
+}
+
+/* 吹き出し */
+.location-tooltip {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 320px;
+  z-index: 1002;
+  color: #333;
+  position: relative;
+  animation: tooltip-appear 0.2s ease-out;
+  pointer-events: auto;
+}
+
+@keyframes tooltip-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.location-tooltip h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+  color: #fa6120;
+  border-bottom: 2px solid #fa6120;
+  padding-bottom: 8px;
+}
+
+.location-tooltip p {
+  margin: 0 0 16px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #666;
+  white-space: pre-line;
+  text-align: left;
+}
+
+.tooltip-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.tooltip-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.tooltip-activities h4 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: #333;
+  text-align: left;
+}
+
+.tooltip-activities ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+  text-align: left;
+}
+
+.tooltip-activities li {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: left;
+}
+
+/* 年代表示テキスト */
+.year-display {
+  font-size: 2rem;
+  margin: 0;
+  color: #00ffcc !important;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+}
+
+/* =========================================
+   4. アニメーション
+   ========================================= */
+@keyframes walk-cycle {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(64px * -7) 0; /* 7コマ */
+  }
+}
+
+@keyframes hunting-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes hunting-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes boar-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes boar-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes making-doki-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes making-doki-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes grain-gathering-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes grain-gathering-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes making-house-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -7) 0; /* 7コマ */
+  }
+}
+
+@keyframes making-house-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -7) 0; /* 7コマ */
+  }
+}
