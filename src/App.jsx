@@ -111,9 +111,11 @@ function LocationTooltip({
   placement,
   offsetValue,
   filteredLocations,
+  onShowDetail,
 }) {
   const { refs, floatingStyles } = useFloating({
     placement: placement,
+    strategy: 'absolute',
     middleware: [offset(offsetValue), flip(), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   });
@@ -148,6 +150,15 @@ function LocationTooltip({
             {location.currentDescription.title}
           </h4>
           <p>{location.currentDescription.content}</p>
+          <button
+            className="detail-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onShowDetail(locationName, location.currentDescription);
+            }}
+          >
+            詳しく見る
+          </button>
         </>
       ) : (
         <p>
@@ -168,6 +179,9 @@ function App() {
   const [shrinkingLocation, setShrinkingLocation] = useState(null);
   // 表示するポップアップの拠点名を管理（nullの場合は非表示）
   const [clickedLocation, setClickedLocation] = useState(null);
+  // 右カラムの展開状態を管理
+  const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
+  const [rightPanelContent, setRightPanelContent] = useState(null);
   // 参照要素のマップ
   const locationRefs = useRef({});
 
@@ -221,16 +235,18 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* --- 地図エリア --- */}
-      <div
-        className="map-wrapper"
-        onClick={() => {
-          // 地図の背景をクリックしたらポップアップを閉じる
-          if (clickedLocation) {
-            setClickedLocation(null);
-          }
-        }}
-      >
+      {/* メインコンテンツエリア */}
+      <div className={`main-content ${isRightPanelOpen ? "shifted" : ""}`}>
+        {/* --- 地図エリア --- */}
+        <div
+          className="map-wrapper"
+          onClick={() => {
+            // 地図の背景をクリックしたらポップアップを閉じる
+            if (clickedLocation) {
+              setClickedLocation(null);
+            }
+          }}
+        >
         <ComposableMap
           width={800}
           height={400}
@@ -364,10 +380,10 @@ function App() {
             })}
           </ZoomableGroup>
         </ComposableMap>
-      </div>
+        </div>
 
-      {/* --- UIエリア --- */}
-      <div className="ui-panel">
+        {/* --- UIエリア --- */}
+        <div className="ui-panel">
         <div
           style={{
             display: "flex",
@@ -393,10 +409,10 @@ function App() {
           className="timeline-slider"
         />
         <p className="description">スライダーを動かして歴史を観測しよう</p>
-      </div>
+        </div>
 
-      {/* 全拠点のポップアップを事前にレンダリング */}
-      {locationsData.map((locationData) => {
+        {/* 全拠点のポップアップを事前にレンダリング */}
+        {locationsData.map((locationData) => {
         const config = getTooltipConfig(locationData.name);
         return (
           <LocationTooltip
@@ -408,9 +424,55 @@ function App() {
             placement={config.placement}
             offsetValue={config.offset}
             filteredLocations={filteredLocations}
+            onShowDetail={(name, description) => {
+              setRightPanelContent({ locationName: name, description });
+              setIsRightPanelOpen(true);
+            }}
           />
         );
-      })}
+        })}
+      </div>
+
+      {/* 右カラム */}
+      <div className={`right-panel ${isRightPanelOpen ? "open" : ""}`}>
+        <button
+          className="panel-close"
+          onClick={() => setIsRightPanelOpen(false)}
+        >
+          ×
+        </button>
+        {rightPanelContent && (
+          <div className="panel-content">
+            <h2>{rightPanelContent.locationName}</h2>
+            <h3>{rightPanelContent.description.title}</h3>
+
+            {rightPanelContent.description.period && (
+              <p className="period-text">{rightPanelContent.description.period}</p>
+            )}
+
+            {rightPanelContent.description.image && (
+              <img
+                src={rightPanelContent.description.image}
+                alt={rightPanelContent.description.title}
+                className="detail-image"
+              />
+            )}
+
+            {rightPanelContent.description.detailContent && (
+              <div className="detail-sections">
+                {rightPanelContent.description.detailContent.sections.map(
+                  (section, index) => (
+                    <div key={index} className="detail-section">
+                      <h4>{section.heading}</h4>
+                      <p>{section.text}</p>
+                    </div>
+                  ),
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
