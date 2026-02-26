@@ -14,7 +14,11 @@ import {
   autoUpdate,
 } from "@floating-ui/react";
 import "./App.css";
-import { locationsData, animationComponents, createRubyHTML } from "./data/locationsData";
+import {
+  locationsData,
+  animationComponents,
+  createRubyHTML,
+} from "./data/locationsData";
 
 // 世界地図データ
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -148,30 +152,46 @@ function LocationTooltip({
         <>
           <h4
             style={{ margin: "0 0 8px 0", color: "#fa6120" }}
-            dangerouslySetInnerHTML={createRubyHTML(location.currentDescription.title)}
+            dangerouslySetInnerHTML={createRubyHTML(
+              location.currentDescription.title,
+            )}
           />
           {location.currentDescription.content && (
-            <p dangerouslySetInnerHTML={createRubyHTML(location.currentDescription.content)} />
+            <p
+              dangerouslySetInnerHTML={createRubyHTML(
+                location.currentDescription.content,
+              )}
+            />
           )}
 
-          {location.currentDescription.keyPoints && location.currentDescription.keyPoints.length > 0 && (
-            <div className="tooltip-key-points">
-              {location.currentDescription.keyPoints.map((keyPoint, index) => {
-                const icons = {
-                  fact: "📌",
-                  impact: "💡",
-                  life: "🌿",
-                  culture: "🏺"
-                };
-                return (
-                  <div key={index} className="tooltip-key-point">
-                    <span className="tooltip-key-point-icon">{icons[keyPoint.type]}</span>
-                    <span className="tooltip-key-point-text" dangerouslySetInnerHTML={createRubyHTML(keyPoint.text)} />
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          {location.currentDescription.keyPoints &&
+            location.currentDescription.keyPoints.length > 0 && (
+              <div className="tooltip-key-points">
+                {location.currentDescription.keyPoints.map(
+                  (keyPoint, index) => {
+                    const icons = {
+                      fact: "📌",
+                      impact: "💡",
+                      life: "🌿",
+                      culture: "🏺",
+                    };
+                    return (
+                      <div key={index} className="tooltip-key-point">
+                        <span className="tooltip-key-point-icon">
+                          {icons[keyPoint.type]}
+                        </span>
+                        <span
+                          className="tooltip-key-point-text"
+                          dangerouslySetInnerHTML={createRubyHTML(
+                            keyPoint.text,
+                          )}
+                        />
+                      </div>
+                    );
+                  },
+                )}
+              </div>
+            )}
 
           <button
             className="detail-button"
@@ -211,6 +231,12 @@ function App() {
   const [prevFilteredLocations, setPrevFilteredLocations] = useState([]);
   // フェードアウト中の拠点を管理
   const [fadingOutLocations, setFadingOutLocations] = useState(new Set());
+  // 地球儀の回転角度を管理 [経度, 緯度, ロール]
+  const [rotation, setRotation] = useState([-80, 0, 0]);
+  // ドラッグ状態
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [rotationStart, setRotationStart] = useState([-80, 0, 0]);
 
   // スライダー値から年代を計算
   const year = useMemo(() => sliderToYear(sliderValue), [sliderValue]);
@@ -266,6 +292,67 @@ function App() {
     }
   }, [filteredLocations]);
 
+  // 地球儀の回転イベント
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setRotationStart(rotation);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+
+    // 感度を調整（0.5倍）
+    const newRotation = [
+      rotationStart[0] + deltaX * 0.5,
+      Math.max(-90, Math.min(90, rotationStart[1] - deltaY * 0.5)), // 緯度は-90から90の範囲に制限
+      0,
+    ];
+
+    setRotation(newRotation);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // グローバルなマウスイベントを設定
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart, rotationStart]);
+
+  // 拠点が地球の表側にあるかどうかを判定
+  const isLocationVisible = (coordinates) => {
+    const [lon, lat] = coordinates;
+    const [rotLon, rotLat] = rotation;
+
+    // 回転後の経度差を計算
+    let lonDiff = lon - -rotLon;
+
+    // -180から180の範囲に正規化
+    while (lonDiff > 180) lonDiff -= 360;
+    while (lonDiff < -180) lonDiff += 360;
+
+    // 緯度差を計算
+    const latDiff = lat - rotLat;
+
+    // 表側の条件：経度差が-90度から90度の範囲内
+    // かつ緯度が極端に離れていない
+    const isVisible = Math.abs(lonDiff) < 90;
+
+    return isVisible;
+  };
+
   // 各拠点のFloating UI設定を作成する関数
   const getTooltipConfig = (locationName) => {
     const location = locationsData.find((loc) => loc.name === locationName);
@@ -296,6 +383,8 @@ function App() {
         {/* --- 地図エリア --- */}
         <div
           className="map-wrapper"
+          onMouseDown={handleMouseDown}
+          style={{ cursor: isDragging ? "grabbing" : "grab" }}
           onClick={() => {
             // 地図の背景をクリックしたらポップアップを閉じる
             if (clickedLocation) {
@@ -306,149 +395,154 @@ function App() {
           <ComposableMap
             width={800}
             height={400}
-            projectionConfig={{ scale: 176 }}
+            projection="geoOrthographic"
+            projectionConfig={{
+              scale: 360,
+              rotate: rotation,
+              center: [0, 10],
+            }}
           >
-            <ZoomableGroup center={[0, 0]} zoom={1}>
-              <Geographies geography={geoUrl}>
-                {({ geographies }) =>
-                  geographies.map((geo) => (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      style={{
-                        default: {
-                          fill: "#E2E6EA",
-                          outline: "none",
-                          stroke: "none",
-                        },
-                        hover: { fill: "#E2E6EA", outline: "none" },
-                      }}
-                    />
-                  ))
-                }
-              </Geographies>
+            <Geographies geography={geoUrl}>
+              {({ geographies }) =>
+                geographies.map((geo) => (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    style={{
+                      default: {
+                        fill: "#E2E6EA",
+                        outline: "none",
+                        stroke: "none",
+                      },
+                      hover: { fill: "#E2E6EA", outline: "none" },
+                    }}
+                  />
+                ))
+              }
+            </Geographies>
 
-              {/* 各拠点のマーカー */}
-              {filteredLocations.map((location) => {
-                const isFadingOut = fadingOutLocations.has(location.name);
-                const prevLocation = prevFilteredLocations.find(
-                  (loc) => loc.name === location.name,
-                );
+            {/* 各拠点のマーカー */}
+            {filteredLocations.map((location) => {
+              const isFadingOut = fadingOutLocations.has(location.name);
+              const prevLocation = prevFilteredLocations.find(
+                (loc) => loc.name === location.name,
+              );
 
-                // 表示するアニメーションを決定
-                const displayAnimations = isFadingOut && prevLocation
+              // 表示するアニメーションを決定
+              const displayAnimations =
+                isFadingOut && prevLocation
                   ? prevLocation.animations
                   : location.animations;
 
-                // アニメーションがない場合はスキップ（フェードアウト中は表示）
-                if (displayAnimations.length === 0) return null;
-                const sizes = getAnimationSizes();
-                const pos = getAnimationPosition(
-                  location.position,
-                  displayAnimations,
-                );
-                // 各アニメーションの幅を合計
-                const width = displayAnimations.reduce((sum, anim) => {
-                  const size =
-                    anim.size === "small" ? sizes.small : sizes.normal;
-                  return sum + size;
-                }, 0);
-                // 最大の高さを取得
-                const height = Math.max(
-                  ...displayAnimations.map((anim) =>
-                    anim.size === "small" ? sizes.small : sizes.normal,
-                  ),
-                );
+              // アニメーションがない場合はスキップ（フェードアウト中は表示）
+              if (displayAnimations.length === 0) return null;
 
-                const isHovered = hoveredLocation === location.name;
-                const isShrinking = shrinkingLocation === location.name;
-                const showCircle = isHovered || isShrinking;
+              // 地球の裏側にある場合は非表示
+              if (!isLocationVisible(location.coordinates)) return null;
+              const sizes = getAnimationSizes();
+              const pos = getAnimationPosition(
+                location.position,
+                displayAnimations,
+              );
+              // 各アニメーションの幅を合計
+              const width = displayAnimations.reduce((sum, anim) => {
+                const size = anim.size === "small" ? sizes.small : sizes.normal;
+                return sum + size;
+              }, 0);
+              // 最大の高さを取得
+              const height = Math.max(
+                ...displayAnimations.map((anim) =>
+                  anim.size === "small" ? sizes.small : sizes.normal,
+                ),
+              );
 
-                const handleMouseEnter = () => {
-                  setShrinkingLocation(null);
-                  setHoveredLocation(location.name);
-                };
+              const isHovered = hoveredLocation === location.name;
+              const isShrinking = shrinkingLocation === location.name;
+              const showCircle = isHovered || isShrinking;
 
-                const handleMouseLeave = () => {
-                  setHoveredLocation(null);
-                  setShrinkingLocation(location.name);
-                  // 縮小アニメーション後に状態をクリア
-                  setTimeout(() => {
-                    setShrinkingLocation((current) =>
-                      current === location.name ? null : current,
-                    );
-                  }, 300); // アニメーション時間と同じ
-                };
+              const handleMouseEnter = () => {
+                setShrinkingLocation(null);
+                setHoveredLocation(location.name);
+              };
 
-                const handleClick = (e) => {
-                  e.stopPropagation();
-                  // 同じ拠点をクリックした場合は閉じる、別の拠点の場合は切り替える
-                  if (clickedLocation === location.name) {
-                    setClickedLocation(null);
-                  } else {
-                    setClickedLocation(location.name);
-                  }
-                };
+              const handleMouseLeave = () => {
+                setHoveredLocation(null);
+                setShrinkingLocation(location.name);
+                // 縮小アニメーション後に状態をクリア
+                setTimeout(() => {
+                  setShrinkingLocation((current) =>
+                    current === location.name ? null : current,
+                  );
+                }, 300); // アニメーション時間と同じ
+              };
 
-                return (
-                  <Marker
-                    key={location.name}
-                    coordinates={location.coordinates}
-                  >
-                    {/* Hover時の拡大円 */}
-                    {showCircle && (
-                      <circle
-                        r={3}
-                        fill="#FA6120"
-                        opacity="0.6"
-                        className={`hover-circle ${isShrinking ? "shrink" : ""}`}
-                      />
-                    )}
+              const handleClick = (e) => {
+                e.stopPropagation();
+                // 同じ拠点をクリックした場合は閉じる、別の拠点の場合は切り替える
+                if (clickedLocation === location.name) {
+                  setClickedLocation(null);
+                } else {
+                  setClickedLocation(location.name);
+                }
+              };
 
-                    <foreignObject
-                      x={pos.x}
-                      y={pos.y}
-                      width={width}
-                      height={height}
-                    >
-                      <div className={`animation-container ${isFadingOut ? "fade-out" : ""}`}>
-                        {displayAnimations.map((anim, index) => {
-                          const sizeClass =
-                            anim.size === "small" ? "small" : "normal";
-                          return (
-                            <div
-                              key={index}
-                              className={`${animationComponents[anim.type]} ${sizeClass}`}
-                            />
-                          );
-                        })}
-                      </div>
-                    </foreignObject>
-
+              return (
+                <Marker key={location.name} coordinates={location.coordinates}>
+                  {/* Hover時の拡大円 */}
+                  {showCircle && (
                     <circle
                       r={3}
                       fill="#FA6120"
-                      style={{ cursor: "pointer" }}
-                      onMouseEnter={handleMouseEnter}
-                      onMouseLeave={handleMouseLeave}
-                      onClick={handleClick}
-                      ref={(el) => {
-                        if (el) locationRefs.current[location.name] = el;
-                      }}
+                      opacity="0.6"
+                      className={`hover-circle ${isShrinking ? "shrink" : ""}`}
                     />
+                  )}
 
-                    <text
-                      textAnchor="middle"
-                      y={12}
-                      className={`location-label ${isFadingOut ? "fade-out" : ""}`}
-                      style={{ pointerEvents: "none" }}
+                  <foreignObject
+                    x={pos.x}
+                    y={pos.y}
+                    width={width}
+                    height={height}
+                  >
+                    <div
+                      className={`animation-container ${isFadingOut ? "fade-out" : ""}`}
                     >
-                      {location.name}
-                    </text>
-                  </Marker>
-                );
-              })}
-            </ZoomableGroup>
+                      {displayAnimations.map((anim, index) => {
+                        const sizeClass =
+                          anim.size === "small" ? "small" : "normal";
+                        return (
+                          <div
+                            key={index}
+                            className={`${animationComponents[anim.type]} ${sizeClass}`}
+                          />
+                        );
+                      })}
+                    </div>
+                  </foreignObject>
+
+                  <circle
+                    r={3}
+                    fill="#FA6120"
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={handleClick}
+                    ref={(el) => {
+                      if (el) locationRefs.current[location.name] = el;
+                    }}
+                  />
+
+                  <text
+                    textAnchor="middle"
+                    y={12}
+                    className={`location-label ${isFadingOut ? "fade-out" : ""}`}
+                    style={{ pointerEvents: "none" }}
+                  >
+                    {location.name}
+                  </text>
+                </Marker>
+              );
+            })}
           </ComposableMap>
         </div>
 
@@ -553,7 +647,11 @@ function App() {
         {rightPanelContent && (
           <div className="panel-content">
             <h2>{rightPanelContent.locationName}</h2>
-            <h3 dangerouslySetInnerHTML={createRubyHTML(rightPanelContent.description.title)} />
+            <h3
+              dangerouslySetInnerHTML={createRubyHTML(
+                rightPanelContent.description.title,
+              )}
+            />
 
             {rightPanelContent.description.period && (
               <p className="period-text">
@@ -569,7 +667,11 @@ function App() {
               />
             )}
 
-            <p dangerouslySetInnerHTML={createRubyHTML(rightPanelContent.description.content)} />
+            <p
+              dangerouslySetInnerHTML={createRubyHTML(
+                rightPanelContent.description.content,
+              )}
+            />
 
             {rightPanelContent.description.detailContent && (
               <div className="detail-sections">
@@ -577,7 +679,9 @@ function App() {
                   (section, index) => (
                     <div key={index} className="detail-section">
                       <h4>{section.heading}</h4>
-                      <p dangerouslySetInnerHTML={createRubyHTML(section.text)} />
+                      <p
+                        dangerouslySetInnerHTML={createRubyHTML(section.text)}
+                      />
                     </div>
                   ),
                 )}
