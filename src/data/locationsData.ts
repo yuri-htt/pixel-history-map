@@ -474,6 +474,72 @@ export const locationsData: Location[] = [
         endYear: null,
       },
     ],
+    descriptions: [
+      {
+        eraId: "prehistoric",
+        subPeriodId: "natufian",
+        title: "ナトゥーフ文化",
+        period: "紀元前12500年ごろ〜紀元前9500年ごろ",
+        image: null,
+        content:
+          "この地域では、野生の麦のような草の種を集めて食べる人が増えました。季節ごとに同じ場所へ戻ることが多くなり、くらしが少しずつ「定住」に近づきます。石の道具を工夫して、食べものを集めやすくしました。のちの農耕につながる、くらしの準備が進んだ時代です。",
+        keyPoints: [
+          { type: "life", text: "野生の穀物を集めて食べた" },
+          { type: "impact", text: "同じ場所に戻るくらしが増えた" },
+          { type: "fact", text: "石の道具を工夫して使った" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "食べものの集め方",
+              text: "野生の麦のような草の種を集めて食べました。たくさん集める工夫が増えていきます。",
+            },
+            {
+              heading: "くらしの変化",
+              text: "季節ごとに同じ場所へ戻ることが多くなりました。移動の回数が減り、落ち着いた生活へ近づきます。",
+            },
+            {
+              heading: "次の時代への準備",
+              text: "食べものを集めやすい場所を大事にする考え方が育ちました。これがのちの農耕へつながります。",
+            },
+          ],
+        },
+        startYear: -12500,
+        endYear: -9500,
+      },
+      {
+        eraId: "prehistoric",
+        subPeriodId: "neolithic-fc",
+        title: ruby("新石器", "しんせっき") + "文化",
+        period: "紀元前10000年ごろ〜紀元前4000年ごろ",
+        image: null,
+        content:
+          "人びとは、野生の植物を育てたり、動物といっしょにくらしたりするようになりました。食べものを「作る」ことで、村に長く住めるようになります。家を作って道具をため、くらしのしくみが整っていきました。のちの都市や文明の土台ができた時代です。",
+        keyPoints: [
+          { type: "impact", text: "食べものを作るくらしが広がった" },
+          { type: "life", text: "村で長く住む人が増えた" },
+          { type: "culture", text: "家や道具を整えてくらしが安定した" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "村のくらし",
+              text: "同じ場所に住みつづける人が増えました。家を作り、村としてまとまってくらします。",
+            },
+            {
+              heading: "食べものを増やす",
+              text: "植物を育てたり、動物を大切に育てたりする工夫が増えました。食べものが安定すると人口も増えやすくなります。",
+            },
+            {
+              heading: "文明の土台",
+              text: "食べものと住む場所が安定すると、道具や役割が増えます。これがのちの都市のはじまりにつながります。",
+            },
+          ],
+        },
+        startYear: -10000,
+        endYear: -4000,
+      },
+    ],
     position: "上",
   },
 
@@ -486,6 +552,40 @@ export const locationsData: Location[] = [
       { type: "hunting", size: "normal", startYear: -14000, endYear: null },
       { type: "boar", size: "small", startYear: -14000, endYear: null },
     ],
+    descriptions: [
+      {
+        eraId: "prehistoric",
+        subPeriodId: "badarian",
+        title: "バダリ文化",
+        period: "紀元前4400年ごろ〜紀元前4000年ごろ",
+        image: null,
+        content:
+          "ナイル川の近くで、川の水をたよりにくらしが安定していきました。土器を作って食べものを保存し、村での生活が広がります。道具やくらしの工夫が増えて、のちの古代エジプトにつながる土台ができていきました。",
+        keyPoints: [
+          { type: "life", text: "川の近くで村のくらしが広がった" },
+          { type: "culture", text: "土器を作って保存に使った" },
+          { type: "impact", text: "のちの古代エジプトにつながる土台" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "川とくらし",
+              text: "ナイル川のそばは水と土地に恵まれていました。川の近くに人が集まりやすくなります。",
+            },
+            {
+              heading: "道具の工夫",
+              text: "土器を使って食べものをためたり、運んだりしました。生活の工夫が増えていきます。",
+            },
+            {
+              heading: "次の時代へ",
+              text: "村が増えると、人の役割も少しずつ分かれていきます。のちの大きな社会の準備になります。",
+            },
+          ],
+        },
+        startYear: -4400,
+        endYear: -4000,
+      },
+    ],
     position: "左下",
   },
 
@@ -497,6 +597,40 @@ export const locationsData: Location[] = [
     activities: [
       { type: "hunting", size: "normal", startYear: -14000, endYear: null },
       { type: "boar", size: "small", startYear: -14000, endYear: null },
+    ],
+    descriptions: [
+      {
+        eraId: "prehistoric",
+        subPeriodId: "mehrgarh",
+        title: "メヘルガル文化",
+        period: "紀元前7000年ごろ〜紀元前2600年ごろ",
+        image: null,
+        content:
+          "山のふもとに近い場所で、人びとは村を作って長くくらしました。植物を育てたり、動物といっしょにくらしたりして、食べものが安定していきます。土器や道具も増え、村の生活が少しずつ大きく育ちました。のちのインダス文明につながる大事な出発点です。",
+        keyPoints: [
+          { type: "impact", text: "のちのインダス文明につながる出発点" },
+          { type: "life", text: "村で長くくらす人が増えた" },
+          { type: "culture", text: "土器や道具が増えて生活が安定" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "村のくらし",
+              text: "同じ場所に家を作って暮らす人が増えました。村としてまとまって生活します。",
+            },
+            {
+              heading: "食べものの工夫",
+              text: "植物を育てたり、動物を育てたりする工夫が広がります。食べものが安定すると村も大きくなります。",
+            },
+            {
+              heading: "文明へのつながり",
+              text: "村が育つと道具や役割も増えます。これがのちの大きな都市の土台になります。",
+            },
+          ],
+        },
+        startYear: -7000,
+        endYear: -2600,
+      },
     ],
     position: "下",
   },
