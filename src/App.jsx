@@ -14,7 +14,7 @@ import {
   autoUpdate,
 } from "@floating-ui/react";
 import "./App.css";
-import { locationsData, animationComponents } from "./data/locationsData";
+import { locationsData, animationComponents, createRubyHTML } from "./data/locationsData";
 
 // 世界地図データ
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -146,10 +146,33 @@ function LocationTooltip({
       <h3>{locationName}</h3>
       {location?.currentDescription ? (
         <>
-          <h4 style={{ margin: "0 0 8px 0", color: "#fa6120" }}>
-            {location.currentDescription.title}
-          </h4>
-          <p>{location.currentDescription.content}</p>
+          <h4
+            style={{ margin: "0 0 8px 0", color: "#fa6120" }}
+            dangerouslySetInnerHTML={createRubyHTML(location.currentDescription.title)}
+          />
+          {location.currentDescription.content && (
+            <p dangerouslySetInnerHTML={createRubyHTML(location.currentDescription.content)} />
+          )}
+
+          {location.currentDescription.keyPoints && location.currentDescription.keyPoints.length > 0 && (
+            <div className="tooltip-key-points">
+              {location.currentDescription.keyPoints.map((keyPoint, index) => {
+                const icons = {
+                  fact: "📌",
+                  impact: "💡",
+                  life: "🌿",
+                  culture: "🏺"
+                };
+                return (
+                  <div key={index} className="tooltip-key-point">
+                    <span className="tooltip-key-point-icon">{icons[keyPoint.type]}</span>
+                    <span className="tooltip-key-point-text" dangerouslySetInnerHTML={createRubyHTML(keyPoint.text)} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           <button
             className="detail-button"
             onClick={(e) => {
@@ -184,6 +207,10 @@ function App() {
   const [rightPanelContent, setRightPanelContent] = useState(null);
   // 参照要素のマップ
   const locationRefs = useRef({});
+  // 前回の拠点データ（フェードアウト用）
+  const [prevFilteredLocations, setPrevFilteredLocations] = useState([]);
+  // フェードアウト中の拠点を管理
+  const [fadingOutLocations, setFadingOutLocations] = useState(new Set());
 
   // スライダー値から年代を計算
   const year = useMemo(() => sliderToYear(sliderValue), [sliderValue]);
@@ -209,6 +236,35 @@ function App() {
         : null,
     }));
   }, [year]);
+
+  // フィルタリングされた拠点が変わった時の処理
+  useEffect(() => {
+    // 消えるアニメーションを検出
+    const newFadingOut = new Set();
+    prevFilteredLocations.forEach((prevLoc) => {
+      const currentLoc = filteredLocations.find(
+        (loc) => loc.name === prevLoc.name,
+      );
+      if (
+        prevLoc.animations.length > 0 &&
+        currentLoc &&
+        currentLoc.animations.length === 0
+      ) {
+        newFadingOut.add(prevLoc.name);
+      }
+    });
+
+    if (newFadingOut.size > 0) {
+      setFadingOutLocations(newFadingOut);
+      // フェードアウトアニメーション後にクリア
+      setTimeout(() => {
+        setFadingOutLocations(new Set());
+        setPrevFilteredLocations(filteredLocations);
+      }, 500); // CSSのアニメーション時間と同じ
+    } else {
+      setPrevFilteredLocations(filteredLocations);
+    }
+  }, [filteredLocations]);
 
   // 各拠点のFloating UI設定を作成する関数
   const getTooltipConfig = (locationName) => {
@@ -250,7 +306,7 @@ function App() {
           <ComposableMap
             width={800}
             height={400}
-            projectionConfig={{ scale: 147 }}
+            projectionConfig={{ scale: 176 }}
           >
             <ZoomableGroup center={[0, 0]} zoom={1}>
               <Geographies geography={geoUrl}>
@@ -274,22 +330,32 @@ function App() {
 
               {/* 各拠点のマーカー */}
               {filteredLocations.map((location) => {
-                // アニメーションがない場合はスキップ
-                if (location.animations.length === 0) return null;
+                const isFadingOut = fadingOutLocations.has(location.name);
+                const prevLocation = prevFilteredLocations.find(
+                  (loc) => loc.name === location.name,
+                );
+
+                // 表示するアニメーションを決定
+                const displayAnimations = isFadingOut && prevLocation
+                  ? prevLocation.animations
+                  : location.animations;
+
+                // アニメーションがない場合はスキップ（フェードアウト中は表示）
+                if (displayAnimations.length === 0) return null;
                 const sizes = getAnimationSizes();
                 const pos = getAnimationPosition(
                   location.position,
-                  location.animations,
+                  displayAnimations,
                 );
                 // 各アニメーションの幅を合計
-                const width = location.animations.reduce((sum, anim) => {
+                const width = displayAnimations.reduce((sum, anim) => {
                   const size =
                     anim.size === "small" ? sizes.small : sizes.normal;
                   return sum + size;
                 }, 0);
                 // 最大の高さを取得
                 const height = Math.max(
-                  ...location.animations.map((anim) =>
+                  ...displayAnimations.map((anim) =>
                     anim.size === "small" ? sizes.small : sizes.normal,
                   ),
                 );
@@ -345,8 +411,8 @@ function App() {
                       width={width}
                       height={height}
                     >
-                      <div className="animation-container">
-                        {location.animations.map((anim, index) => {
+                      <div className={`animation-container ${isFadingOut ? "fade-out" : ""}`}>
+                        {displayAnimations.map((anim, index) => {
                           const sizeClass =
                             anim.size === "small" ? "small" : "normal";
                           return (
@@ -374,7 +440,7 @@ function App() {
                     <text
                       textAnchor="middle"
                       y={12}
-                      className="location-label"
+                      className={`location-label ${isFadingOut ? "fade-out" : ""}`}
                       style={{ pointerEvents: "none" }}
                     >
                       {location.name}
@@ -403,15 +469,54 @@ function App() {
               </span>
             )}
           </div>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            step="0.1"
-            value={sliderValue}
-            onChange={(e) => setSliderValue(parseFloat(e.target.value))}
-            className="timeline-slider"
-          />
+
+          {/* スライダーと時代区分の目印 */}
+          <div className="slider-container">
+            {/* 時代区分の目印 */}
+            <div className="era-markers">
+              <div
+                className="era-marker"
+                style={{ left: `${yearToSlider(-3000)}%` }}
+              >
+                <div className="era-marker-dot"></div>
+              </div>
+              <div
+                className="era-marker"
+                style={{ left: `${yearToSlider(500)}%` }}
+              >
+                <div className="era-marker-dot"></div>
+              </div>
+              <div
+                className="era-marker"
+                style={{ left: `${yearToSlider(1500)}%` }}
+              >
+                <div className="era-marker-dot"></div>
+              </div>
+              <div
+                className="era-marker"
+                style={{ left: `${yearToSlider(1800)}%` }}
+              >
+                <div className="era-marker-dot"></div>
+              </div>
+              <div
+                className="era-marker"
+                style={{ left: `${yearToSlider(1945)}%` }}
+              >
+                <div className="era-marker-dot"></div>
+              </div>
+            </div>
+
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="0.1"
+              value={sliderValue}
+              onChange={(e) => setSliderValue(parseFloat(e.target.value))}
+              className="timeline-slider"
+            />
+          </div>
+
           <p className="description">スライダーを動かして歴史を観測しよう</p>
         </div>
 
@@ -448,7 +553,7 @@ function App() {
         {rightPanelContent && (
           <div className="panel-content">
             <h2>{rightPanelContent.locationName}</h2>
-            <h3>{rightPanelContent.description.title}</h3>
+            <h3 dangerouslySetInnerHTML={createRubyHTML(rightPanelContent.description.title)} />
 
             {rightPanelContent.description.period && (
               <p className="period-text">
@@ -464,13 +569,15 @@ function App() {
               />
             )}
 
+            <p dangerouslySetInnerHTML={createRubyHTML(rightPanelContent.description.content)} />
+
             {rightPanelContent.description.detailContent && (
               <div className="detail-sections">
                 {rightPanelContent.description.detailContent.sections.map(
                   (section, index) => (
                     <div key={index} className="detail-section">
                       <h4>{section.heading}</h4>
-                      <p>{section.text}</p>
+                      <p dangerouslySetInnerHTML={createRubyHTML(section.text)} />
                     </div>
                   ),
                 )}

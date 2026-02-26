@@ -6,6 +6,17 @@
   --animation-size-small: 20px; /* 小サイズアニメーション */
 }
 
+/* ルビ（ふりがな）のスタイル */
+ruby {
+  ruby-position: over;
+}
+
+rt {
+  font-size: 0.5em;
+  color: inherit;
+  opacity: 0.8;
+}
+
 body,
 #root {
   margin: 0;
@@ -61,9 +72,9 @@ body,
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
-  max-width: 600px;
-  padding: 20px;
+  width: 95%;
+  max-width: 1200px;
+  padding: 24px 32px;
   background: rgba(40, 40, 40, 0.9) !important;
   color: white;
   display: flex;
@@ -75,9 +86,42 @@ body,
   z-index: 1001;
   pointer-events: auto;
 }
+/* スライダーコンテナ */
+.slider-container {
+  width: 98%;
+  position: relative;
+  margin-top: 30px;
+}
+
 .timeline-slider {
-  width: 80%;
-  margin-top: 20px;
+  width: 100%;
+  margin: 0;
+}
+
+/* 時代区分の目印 */
+.era-markers {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  pointer-events: none;
+}
+
+.era-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.era-marker-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #ccc;
+  border-radius: 50%;
+  opacity: 0.6;
 }
 
 /* =========================================
@@ -106,6 +150,33 @@ body,
 .animation-container {
   display: flex;
   align-items: center;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animation-container.fade-out {
+  animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
 }
 
 /* 狩猟採取アニメーション */
@@ -224,6 +295,29 @@ body,
   fill: #000000;
   font-family: system-ui, sans-serif;
   font-weight: normal;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.location-label.fade-out {
+  animation: labelFadeOut 0.5s ease-in-out forwards;
+}
+
+@keyframes labelFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 拠点マーカー全体のフェード */
+.location-marker {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.location-marker.fade-out {
+  animation: fadeOut 0.5s ease-in-out forwards;
 }
 
 /* Hover時の拡大円アニメーション */
@@ -357,6 +451,44 @@ body,
   text-align: left;
 }
 
+/* ポップアップ内のキーポイント */
+.tooltip-key-points {
+  margin: 12px 0 0 0;
+}
+
+.tooltip-key-point {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.tooltip-key-point:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-key-point:hover {
+  background: #f0f1f3;
+}
+
+.tooltip-key-point-icon {
+  font-size: 1rem;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.tooltip-key-point-text {
+  flex: 1;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #555;
+  text-align: left;
+}
+
 /* 年代表示テキスト */
 .year-display {
   font-size: 2rem;
@@ -437,7 +569,9 @@ body,
   padding: 60px 32px 32px;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.4s ease-out 0.3s, transform 0.4s ease-out 0.3s;
+  transition:
+    opacity 0.4s ease-out 0.3s,
+    transform 0.4s ease-out 0.3s;
 }
 
 .right-panel.open .panel-content {
@@ -481,6 +615,66 @@ body,
   font-size: 0.85rem;
   color: #999;
   text-align: center;
+}
+
+/* Key Points セクション */
+.key-points {
+  margin: 24px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #fa6120;
+}
+
+.key-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.key-point:last-child {
+  margin-bottom: 0;
+}
+
+.key-point:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.key-point.fact {
+  border-left: 3px solid #4a90e2;
+}
+
+.key-point.impact {
+  border-left: 3px solid #f39c12;
+}
+
+.key-point.life {
+  border-left: 3px solid #52c41a;
+}
+
+.key-point.culture {
+  border-left: 3px solid #8b4513;
+}
+
+.key-point-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.key-point-text {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+  text-align: left;
 }
 
 .detail-sections {
