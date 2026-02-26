@@ -1,4 +1,27 @@
 // ================================
+// 0) ルビ（ふりがな）ユーティリティ
+// ================================
+
+/**
+ * ルビ付きテキストを生成するヘルパー関数
+ * @param base - 漢字などの基底テキスト
+ * @param ruby - ふりがな
+ * @returns HTML rubyタグを含む文字列
+ * @example ruby("仰韶", "ぎょうしょう") => "<ruby>仰韶<rt>ぎょうしょう</rt></ruby>"
+ */
+export function ruby(base: string, ruby: string): string {
+  return `<ruby>${base}<rt>${ruby}</rt></ruby>`;
+}
+
+/**
+ * ルビ付きテキストをReactで使用するためのパース関数
+ * dangerouslySetInnerHTMLで使用することを想定
+ */
+export function createRubyHTML(text: string): { __html: string } {
+  return { __html: text };
+}
+
+// ================================
 // 1) 時代区分の定義（唯一の正）
 // ================================
 export const eraDefinitions = [
@@ -43,20 +66,14 @@ type RegionEraSubPeriods = Record<EraId, EraBlock>;
 // - EraId と完全に紐づく（ズレたらコンパイルエラー）
 // ================================
 export const eraSubPeriodsByRegion = {
-  japan: {
+  japaneseArchipelago: {
     prehistoric: {
       subPeriods: [
         {
-          id: "paleolithic-jp",
+          id: "paleolithicJp",
           label: "旧石器時代",
-          defaultStartYear: -14000,
-          defaultEndYear: -10000,
-        },
-        {
-          id: "neolithic-jp",
-          label: "新石器時代",
-          defaultStartYear: -10000,
-          defaultEndYear: -3000,
+          defaultStartYear: -30000,
+          defaultEndYear: -14000,
         },
         {
           id: "jomon",
@@ -82,8 +99,17 @@ export const eraSubPeriodsByRegion = {
     contemporary: { subPeriods: [] },
   },
 
-  china: {
-    prehistoric: { subPeriods: [] },
+  yellowRiver: {
+    prehistoric: {
+      subPeriods: [
+        {
+          id: "yangshao",
+          label: ruby("仰韶", "ぎょうしょう") + "文化",
+          defaultStartYear: -5000,
+          defaultEndYear: -3000,
+        },
+      ],
+    },
     ancient: { subPeriods: [] },
     medieval: { subPeriods: [] },
     earlyModern: { subPeriods: [] },
@@ -91,8 +117,23 @@ export const eraSubPeriodsByRegion = {
     contemporary: { subPeriods: [] },
   },
 
-  mesopotamia: {
-    prehistoric: { subPeriods: [] },
+  fertileCrescent: {
+    prehistoric: {
+      subPeriods: [
+        {
+          id: "natufian",
+          label: "ナトゥーフ文化",
+          defaultStartYear: -12500,
+          defaultEndYear: -9500,
+        },
+        {
+          id: "neolithic-fc",
+          label: ruby("新石器", "しんせっき") + "文化",
+          defaultStartYear: -10000,
+          defaultEndYear: -4000,
+        },
+      ],
+    },
     ancient: { subPeriods: [] },
     medieval: { subPeriods: [] },
     earlyModern: { subPeriods: [] },
@@ -100,8 +141,17 @@ export const eraSubPeriodsByRegion = {
     contemporary: { subPeriods: [] },
   },
 
-  egypt: {
-    prehistoric: { subPeriods: [] },
+  nileValley: {
+    prehistoric: {
+      subPeriods: [
+        {
+          id: "badarian",
+          label: "バダリ文化",
+          defaultStartYear: -4400,
+          defaultEndYear: -4000,
+        },
+      ],
+    },
     ancient: { subPeriods: [] },
     medieval: { subPeriods: [] },
     earlyModern: { subPeriods: [] },
@@ -109,26 +159,17 @@ export const eraSubPeriodsByRegion = {
     contemporary: { subPeriods: [] },
   },
 
-  india: {
-    prehistoric: { subPeriods: [] },
-    ancient: { subPeriods: [] },
-    medieval: { subPeriods: [] },
-    earlyModern: { subPeriods: [] },
-    modern: { subPeriods: [] },
-    contemporary: { subPeriods: [] },
-  },
-
-  europe: {
-    prehistoric: { subPeriods: [] },
-    ancient: { subPeriods: [] },
-    medieval: { subPeriods: [] },
-    earlyModern: { subPeriods: [] },
-    modern: { subPeriods: [] },
-    contemporary: { subPeriods: [] },
-  },
-
-  america: {
-    prehistoric: { subPeriods: [] },
+  indusValley: {
+    prehistoric: {
+      subPeriods: [
+        {
+          id: "mehrgarh",
+          label: "メヘルガル文化",
+          defaultStartYear: -7000,
+          defaultEndYear: -2600,
+        },
+      ],
+    },
     ancient: { subPeriods: [] },
     medieval: { subPeriods: [] },
     earlyModern: { subPeriods: [] },
@@ -178,6 +219,22 @@ type DetailContent = {
   sections: DetailSection[];
 };
 
+// キーポイントの型定義
+export const KEY_POINT_TYPES = {
+  FACT: "fact",
+  IMPACT: "impact", //💡
+  LIFE: "life", //
+  CULTURE: "culture",
+} as const;
+
+export type KeyPointType =
+  (typeof KEY_POINT_TYPES)[keyof typeof KEY_POINT_TYPES];
+
+export type KeyPoint = {
+  type: KeyPointType;
+  text: string;
+};
+
 // アニメーション位置の定数定義
 export const ANIMATION_POSITIONS = {
   TOP: "上",
@@ -199,7 +256,8 @@ export type Description = {
   title: string;
   period?: string;
   image?: string | null;
-  content: string;
+  content?: string;
+  keyPoints?: KeyPoint[]; // キーポイント（オプショナル）
   detailContent?: DetailContent | null;
   startYear: number;
   endYear: number | null;
@@ -215,9 +273,10 @@ export type Location = {
 };
 
 export const locationsData: Location[] = [
+  // ✅ 日本列島（縄文文化圏）
   {
-    regionId: "japan",
-    name: "日本",
+    regionId: "japaneseArchipelago",
+    name: "日本列島",
     coordinates: [139, 36],
     activities: [
       { type: "hunting", size: "normal", startYear: -14000, endYear: -300 },
@@ -231,8 +290,21 @@ export const locationsData: Location[] = [
         title: "縄文時代",
         period: "紀元前14000年〜紀元前900年",
         image: "/landscape-of-jomon.png",
-        content:
-          "紀元前14000年ごろから紀元前900年ごろまで、日本では縄文時代という、とても長い時代が続きました。\n\n森や海のめぐみを分けてもらいながら、人びとは自然といっしょにくらしていました。\n\n1万年以上も続いた、世界でもめずらしい時代です。",
+        content: "",
+        keyPoints: [
+          {
+            type: "fact",
+            text: "縄目の文様がついた土器が作られた",
+          },
+          {
+            type: "life",
+            text: `${ruby("狩", "か")}りや漁、${ruby("採集", "さいしゅう")}で食べ物を得ていた`,
+          },
+          {
+            type: "impact",
+            text: "1万年以上続いた世界的にも長い時代",
+          },
+        ],
         detailContent: {
           sections: [
             {
@@ -252,41 +324,140 @@ export const locationsData: Location[] = [
         startYear: -14000,
         endYear: -900,
       },
+    ],
+    position: "下",
+  },
+
+  // ✅ 黄河流域
+  {
+    regionId: "yellowRiver",
+    name: "黄河流域",
+    coordinates: [112, 35],
+    activities: [
+      // 初期新石器時代
+      // "川の近くで粟をまいて育てている場面",
+      // "磨いた石の道具で木を切っている場面",
+      // "川の近くでアワ（雑穀）をまいて育てているシーン",
+      // "土器でスープや穀物をコトコト煮ているシーン",
+      // "小さな家のまわりで食べ物を干して保存しているシーン"
       {
-        eraId: "ancient",
-        subPeriodId: "yayoi",
-        title: "弥生時代",
-        period: "紀元前900年〜紀元後300年",
-        content: "それ以降は弥生時代",
+        type: "making-doki",
+        size: "normal",
+        startYear: -14000,
+        endYear: -3000,
+      },
+      // 仰韶文化
+      // "赤や黒の模様をえがいた土器を作っている場面",
+      // "粟を刈り取って干している場面",
+      // "円形の村で家々が並び人びとが協力してくらしている場面"
+      // "家のまわりでブタを飼って世話しているシーン"
+    ],
+    descriptions: [
+      {
+        eraId: "prehistoric",
+        subPeriodId: "earlyNeolithic",
+        title: "初期新石器時代",
+        period: "紀元前8000年〜紀元前5000年ごろ",
+        image: null,
+        content:
+          "黄河のまわりでは、少しずつ同じ場所に長く住む人が増えていきました。木の実や狩りだけでなく、アワなどの作物を育てるくらしがはじまります。土器を使って食べものをにたり、保存したりする工夫も広がりました。自然の力を利用しながら、村のくらしが形づくられていった時代です。",
+        keyPoints: [
+          { type: "impact", text: "作物を育てはじめた" },
+          { type: "life", text: "村でくらしはじめた" },
+          { type: "culture", text: "土器を使いはじめた" },
+        ],
         detailContent: {
           sections: [
             {
-              heading: "弥生時代の始まり",
-              text: "紀元前900年ごろから、稲作が始まり、弥生時代へと移行していきました。",
+              heading: "作物を育てる",
+              text: "黄河流域ではアワなどの穀物を育てる人びとがあらわれました。食べものを自分たちで増やすという新しい考え方が広がります。",
+            },
+            {
+              heading: "村のはじまり",
+              text: "同じ場所に長く住むことで、小さな村ができました。家をつくり、みんなで協力してくらしていました。",
+            },
+            {
+              heading: "土器の役わり",
+              text: "土器を使うことで、食べものをにたり、保存したりできるようになりました。くらしは少しずつ安定していきました。",
             },
           ],
         },
-        startYear: -900,
-        endYear: 300,
+        startYear: -8000,
+        endYear: -5000,
+      },
+      {
+        eraId: "prehistoric",
+        subPeriodId: "yangshaoCulture",
+        title: ruby("仰韶", "ぎょうしょう") + "文化",
+        period: "紀元前5000年〜紀元前3000年ごろ",
+        image: null,
+        content:
+          "黄河のまわりで、村に住んで畑をするくらしが広がった時代です。アワなどの作物を育て、ブタなどの動物も飼うようになりました。赤い色の土器に絵やもようをえがく文化が生まれ、くらしの道具が豊かになっていきます。村どうしの交流も増えて、地域に広がるまとまりができはじめました。",
+        keyPoints: [
+          { type: "life", text: "村で畑をするくらしが広がった" },
+          { type: "impact", text: "動物を飼って食べ物が安定した" },
+          { type: "culture", text: "赤い絵付け土器が作られた" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "どんなくらし？",
+              text: "川の近くに村を作って、同じ場所で長く暮らしました。畑でアワを育てたり、食べ物をためたりして、くらしが安定していきました。",
+            },
+            {
+              heading: "食べものと動物",
+              text: "作物だけでなく、ブタなどの動物を飼うことも増えました。狩りや採集も続けつつ、食べものの種類がふえていきます。",
+            },
+            {
+              heading: "土器と文化",
+              text: "赤い土器に絵やもようをかいたものが有名です。道具だけでなく「きれいに作る」工夫が広がり、人びとの気持ちやくらしの豊かさが見えてきます。",
+            },
+          ],
+        },
+        startYear: -5000,
+        endYear: -3000,
+      },
+      {
+        eraId: "prehistoric",
+        subPeriodId: "longshanCulture",
+        title: "龍山文化",
+        period: "紀元前3000年ごろ〜紀元前1900年ごろ",
+        image: null,
+        content:
+          "黄河のまわりで、村が大きくなり、まとまりが強くなっていった時代です。黒くてうすい土器など、技術の高さが目立つ道具が作られました。村をかこむ土のかべやみぞが見つかることもあり、争いへのそなえも増えます。人びとの役わりの違いがはっきりして、のちの国づくりにつながる流れが見えてきます。",
+        keyPoints: [
+          { type: "culture", text: "黒いうす手の土器が有名" },
+          { type: "impact", text: "村が大きくなり、まとめ役が目立つ" },
+          { type: "fact", text: "村を囲む土のかべやみぞが見つかる" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "くらしの変化",
+              text: "小さな村がつながって、より大きな集まりになっていきました。畑のくらしが進み、食べものや道具をためる力も強くなります。",
+            },
+            {
+              heading: "道具と技術",
+              text: "黒くてうすい土器は、とてもきれいで作るのがむずかしい道具です。上手に作れる人や工夫が増え、くらしの技術がぐっと上がりました。",
+            },
+            {
+              heading: "村のしくみ",
+              text: "村のまわりに土のかべやみぞが作られる例があり、守りを意識した様子が見えます。人によって役わりや持ち物の差も出てきて、のちの国づくりの土台になります。",
+            },
+          ],
+        },
+        startYear: -3000,
+        endYear: -1900,
       },
     ],
-    position: "右下",
+    position: "下",
   },
+
+  // ✅ 肥沃な三日月地帯
   {
-    regionId: "china",
-    name: "中国",
-    coordinates: [110, 35],
-    activities: [
-      { type: "hunting", size: "normal", startYear: -14000, endYear: null },
-      { type: "boar", size: "small", startYear: -14000, endYear: null },
-      { type: "making-doki", size: "normal", startYear: -14000, endYear: null },
-    ],
-    position: "上",
-  },
-  {
-    regionId: "mesopotamia",
-    name: "メソポタミア",
-    coordinates: [44, 33],
+    regionId: "fertileCrescent",
+    name: "肥沃三日月",
+    coordinates: [40, 35],
     activities: [
       { type: "hunting", size: "normal", startYear: -14000, endYear: null },
       { type: "boar", size: "small", startYear: -14000, endYear: null },
@@ -305,9 +476,11 @@ export const locationsData: Location[] = [
     ],
     position: "上",
   },
+
+  // ✅ ナイル川流域
   {
-    regionId: "egypt",
-    name: "エジプト",
+    regionId: "nileValley",
+    name: "ナイル流域",
     coordinates: [31, 26],
     activities: [
       { type: "hunting", size: "normal", startYear: -14000, endYear: null },
@@ -315,35 +488,17 @@ export const locationsData: Location[] = [
     ],
     position: "左下",
   },
+
+  // ✅ インダス川流域
   {
-    regionId: "india",
-    name: "インド",
-    coordinates: [78, 22],
+    regionId: "indusValley",
+    name: "インダス流域",
+    coordinates: [68, 27],
     activities: [
       { type: "hunting", size: "normal", startYear: -14000, endYear: null },
       { type: "boar", size: "small", startYear: -14000, endYear: null },
     ],
     position: "下",
-  },
-  {
-    regionId: "europe",
-    name: "ヨーロッパ",
-    coordinates: [10, 50],
-    activities: [
-      { type: "hunting", size: "normal", startYear: -14000, endYear: null },
-      { type: "boar", size: "small", startYear: -14000, endYear: null },
-    ],
-    position: "上",
-  },
-  {
-    regionId: "america",
-    name: "アメリカ",
-    coordinates: [-95, 38],
-    activities: [
-      { type: "hunting", size: "normal", startYear: -14000, endYear: null },
-      { type: "boar", size: "small", startYear: -14000, endYear: null },
-    ],
-    position: "上",
   },
 ];
 
@@ -357,10 +512,7 @@ export const locationsData: Location[] = [
  * @param eraId - 時代区分ID（例: "prehistoric", "ancient"）
  * @returns サブ時代の配列
  */
-export function getSubPeriods(
-  regionId: RegionId,
-  eraId: EraId,
-): SubPeriod[] {
+export function getSubPeriods(regionId: RegionId, eraId: EraId): SubPeriod[] {
   return eraSubPeriodsByRegion[regionId][eraId].subPeriods;
 }
 
@@ -434,8 +586,7 @@ export function getSubPeriodsByYear(
   const subPeriods = getSubPeriods(regionId, eraId);
   return subPeriods.filter((sp) => {
     const afterStart = year >= sp.defaultStartYear;
-    const beforeEnd =
-      sp.defaultEndYear === null || year <= sp.defaultEndYear;
+    const beforeEnd = sp.defaultEndYear === null || year <= sp.defaultEndYear;
     return afterStart && beforeEnd;
   });
 }
@@ -453,8 +604,7 @@ export function getAllSubPeriodsByYear(
   const allSubPeriods = getAllSubPeriodsForRegion(regionId);
   return allSubPeriods.filter((sp) => {
     const afterStart = year >= sp.defaultStartYear;
-    const beforeEnd =
-      sp.defaultEndYear === null || year <= sp.defaultEndYear;
+    const beforeEnd = sp.defaultEndYear === null || year <= sp.defaultEndYear;
     return afterStart && beforeEnd;
   });
 }
