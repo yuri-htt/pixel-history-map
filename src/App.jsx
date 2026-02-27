@@ -397,7 +397,7 @@ function App() {
             height={400}
             projection="geoOrthographic"
             projectionConfig={{
-              scale: 360,
+              scale: 380,
               rotate: rotation,
               center: [0, 10],
             }}
@@ -413,8 +413,10 @@ function App() {
                         fill: "#E2E6EA",
                         outline: "none",
                         stroke: "none",
+                        pointerEvents: "none",
                       },
                       hover: { fill: "#E2E6EA", outline: "none" },
+                      pressed: { fill: "#E2E6EA", outline: "none" },
                     }}
                   />
                 ))
