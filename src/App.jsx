@@ -19,6 +19,8 @@ import {
   animationComponents,
   createRubyHTML,
   animationDescriptions,
+  eraDefinitions,
+  getEraByYear,
 } from "./data/locationsData";
 
 // 世界地図データ
@@ -245,6 +247,9 @@ function App() {
 
   // スライダー値から年代を計算
   const year = useMemo(() => sliderToYear(sliderValue), [sliderValue]);
+
+  // 現在の時代を取得
+  const currentEra = useMemo(() => getEraByYear(year), [year]);
 
   // 表示用の年のテキスト作成
   const yearText =
@@ -597,17 +602,34 @@ function App() {
           <div
             style={{
               display: "flex",
-              alignItems: "baseline",
-              gap: "12px",
-              justifyContent: "center",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "8px",
             }}
           >
-            <h1 className="year-display">{yearText}</h1>
-            {yearsAgoText && (
-              <span style={{ fontSize: "1rem", color: "#999" }}>
-                {yearsAgoText}
-              </span>
+            {currentEra && (
+              <div className="era-info">
+                <span className="era-label">{currentEra.label}</span>
+                <span className="era-description">
+                  {currentEra.description}
+                </span>
+              </div>
             )}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: "12px",
+                justifyContent: "center",
+              }}
+            >
+              <h1 className="year-display">{yearText}</h1>
+              {yearsAgoText && (
+                <span style={{ fontSize: "1rem", color: "#999" }}>
+                  {yearsAgoText}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* スライダーと時代区分の目印 */}
