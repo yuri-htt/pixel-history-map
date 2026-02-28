@@ -18,6 +18,7 @@ import {
   locationsData,
   animationComponents,
   createRubyHTML,
+  animationDescriptions,
 } from "./data/locationsData";
 
 // 世界地図データ
@@ -237,6 +238,10 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [rotationStart, setRotationStart] = useState([-80, 0, 0]);
+  // hover中のアニメーションを管理 (animKey, animType)
+  const [hoveredAnimation, setHoveredAnimation] = useState(null);
+  // ツールチップの位置を管理
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   // スライダー値から年代を計算
   const year = useMemo(() => sliderToYear(sliderValue), [sliderValue]);
@@ -505,18 +510,43 @@ function App() {
                     y={pos.y}
                     width={width}
                     height={height}
+                    style={{ pointerEvents: "auto" }}
                   >
                     <div
                       className={`animation-container ${isFadingOut ? "fade-out" : ""}`}
+                      style={{ pointerEvents: "auto" }}
                     >
                       {displayAnimations.map((anim, index) => {
                         const sizeClass =
                           anim.size === "small" ? "small" : "normal";
+                        const animKey = `${location.name}-${index}`;
+                        const isAnimHovered =
+                          hoveredAnimation && hoveredAnimation.key === animKey;
                         return (
                           <div
                             key={index}
-                            className={`${animationComponents[anim.type]} ${sizeClass}`}
-                          />
+                            className="animation-wrapper"
+                            style={{ pointerEvents: "auto" }}
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setTooltipPosition({
+                                x: rect.left + rect.width / 2,
+                                y: rect.top - 10,
+                              });
+                              setHoveredAnimation({
+                                key: animKey,
+                                type: anim.type,
+                              });
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredAnimation(null);
+                            }}
+                          >
+                            <div
+                              className={`${animationComponents[anim.type]} ${sizeClass}`}
+                              style={{ pointerEvents: "auto" }}
+                            />
+                          </div>
                         );
                       })}
                     </div>
@@ -546,6 +576,20 @@ function App() {
               );
             })}
           </ComposableMap>
+
+          {/* アニメーションツールチップ */}
+          {hoveredAnimation && (
+            <div
+              className="animation-tooltip"
+              style={{
+                left: `${tooltipPosition.x}px`,
+                top: `${tooltipPosition.y}px`,
+                transform: "translate(-50%, -100%)",
+              }}
+            >
+              {animationDescriptions[hoveredAnimation.type] || ""}
+            </div>
+          )}
         </div>
 
         {/* --- UIエリア --- */}

@@ -151,6 +151,52 @@ body,
   display: flex;
   align-items: center;
   animation: fadeIn 0.5s ease-in-out;
+  pointer-events: auto;
+}
+
+/* アニメーションラッパー（hover用） */
+.animation-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* アニメーションツールチップ */
+.animation-tooltip {
+  position: fixed;
+  background: rgba(40, 40, 40, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10000;
+  animation: tooltip-fade-in 0.2s ease-out;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-family: system-ui, sans-serif;
+}
+
+.animation-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(40, 40, 40, 0.95);
+}
+
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 @keyframes fadeIn {
