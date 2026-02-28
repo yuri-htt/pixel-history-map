@@ -230,7 +230,13 @@ function LocationTooltip({
       <button className="tooltip-close" onClick={onClose}>
         ×
       </button>
-      <h3>{locationName}</h3>
+      <h3
+        dangerouslySetInnerHTML={
+          location?.displayName
+            ? createRubyHTML(location.displayName)
+            : { __html: locationName }
+        }
+      />
       {location?.currentDescription ? (
         <>
           <h4

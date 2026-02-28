@@ -119,6 +119,7 @@ export type Description = {
 export type Location = {
   regionId: string;
   name: string;
+  displayName?: string;
   coordinates: [number, number];
   activities: Activity[];
   descriptions?: Description[];

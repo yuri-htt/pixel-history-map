@@ -10,6 +10,7 @@ export const locationsData: Location[] = [
   {
     regionId: "japaneseArchipelago",
     name: "日本列島",
+    displayName: ruby("日本", "にほん") + ruby("列島", "れっとう"),
     coordinates: [139, 36],
     activities: [
       {
@@ -45,7 +46,7 @@ export const locationsData: Location[] = [
       {
         eraId: "prehistoric",
         subPeriodId: "jomon",
-        title: "縄文時代",
+        title: ruby("縄文", "じょうもん") + ruby("時代", "じだい"),
         period: "紀元前14000年〜紀元前900年",
         image: "/landscape-of-jomon.png",
         content: "",
@@ -90,20 +91,21 @@ export const locationsData: Location[] = [
   {
     regionId: "yellowRiver",
     name: "黄河流域",
+    displayName: ruby("黄河", "こうが") + ruby("流域", "りゅういき"),
     coordinates: [112, 35],
     activities: [
       // 初期：狩猟・採集（農耕が広がる前も含めて）
       {
         type: "hunting",
         size: "normal",
-        startYear: -14000,
+        startYear: -30000,
         endYear: -3000,
         group: "狩猟採取",
       },
       {
         type: "deer",
         size: "small",
-        startYear: -14000,
+        startYear: -30000,
         endYear: -3000,
         group: "狩猟採取",
       },
@@ -128,7 +130,7 @@ export const locationsData: Location[] = [
       {
         type: "making-doki",
         size: "small",
-        startYear: -8000,
+        startYear: -16000,
         endYear: -1900,
         group: "土器作り",
       },
@@ -146,7 +148,7 @@ export const locationsData: Location[] = [
       {
         eraId: "prehistoric",
         subPeriodId: "earlyNeolithic",
-        title: "初期新石器時代",
+        title: ruby("初期", "しょき") + ruby("新石器", "しんせっき") + ruby("時代", "じだい"),
         period: "紀元前8000年〜紀元前5000年ごろ",
         image: null,
         content:
@@ -210,7 +212,7 @@ export const locationsData: Location[] = [
       {
         eraId: "prehistoric",
         subPeriodId: "longshanCulture",
-        title: "龍山文化",
+        title: ruby("龍山", "りゅうざん") + ruby("文化", "ぶんか"),
         period: "紀元前3000年ごろ〜紀元前1900年ごろ",
         image: null,
         content:
@@ -247,28 +249,45 @@ export const locationsData: Location[] = [
   {
     regionId: "fertileCrescent",
     name: "肥沃三日月",
+    displayName: ruby("肥沃", "ひよく") + ruby("三日月", "みかづき"),
     coordinates: [40, 35],
     activities: [
       {
         type: "hunting",
         size: "normal",
-        startYear: -12500,
+        startYear: -30000,
         endYear: -4000,
         group: "狩猟採取",
       },
       {
         type: "deer",
         size: "small",
-        startYear: -12500,
+        startYear: -30000,
         endYear: -4000,
         group: "狩猟採取",
       },
+      // ナトゥーフ〜前期新石器の「野生の穀物あつめ」
       {
         type: "grain-gathering",
         size: "normal",
         startYear: -12500,
-        endYear: -10000,
+        endYear: -9000,
         group: "穀物集め",
+      },
+      // 新石器：農業（小麦・大麦）
+      {
+        type: "sowing-the-seeds",
+        size: "normal",
+        startYear: -10000,
+        endYear: -4000,
+        group: "農業",
+      },
+      {
+        type: "plowing-the-field",
+        size: "normal",
+        startYear: -10000,
+        endYear: -4000,
+        group: "農業",
       },
       {
         type: "animal-domestication-goat",
@@ -289,7 +308,7 @@ export const locationsData: Location[] = [
       {
         eraId: "prehistoric",
         subPeriodId: "natufian",
-        title: "ナトゥーフ文化",
+        title: "ナトゥーフ" + ruby("文化", "ぶんか"),
         period: "紀元前12500年ごろ〜紀元前9500年ごろ",
         image: null,
         content:
@@ -358,20 +377,21 @@ export const locationsData: Location[] = [
   {
     regionId: "nileValley",
     name: "ナイル流域",
+    displayName: "ナイル" + ruby("流域", "りゅういき"),
     coordinates: [31, 26],
     activities: [
       // 狩猟（ナイル沿いの野生動物）
       {
         type: "hunting",
         size: "normal",
-        startYear: -8000,
+        startYear: -30000,
         endYear: -3100,
         group: "狩猟採取",
       },
       {
         type: "deer",
         size: "small",
-        startYear: -8000,
+        startYear: -30000,
         endYear: -3100,
         group: "狩猟採取",
       },
@@ -411,7 +431,7 @@ export const locationsData: Location[] = [
       {
         eraId: "prehistoric",
         subPeriodId: "badarian",
-        title: "バダリ文化",
+        title: "バダリ" + ruby("文化", "ぶんか"),
         period: "紀元前4400年ごろ〜紀元前4000年ごろ",
         image: null,
         content:
@@ -448,20 +468,21 @@ export const locationsData: Location[] = [
   {
     regionId: "indusValley",
     name: "インダス流域",
+    displayName: "インダス" + ruby("流域", "りゅういき"),
     coordinates: [68, 27],
     activities: [
       // 狩猟（農耕開始後も継続）
       {
         type: "hunting",
         size: "normal",
-        startYear: -7000,
+        startYear: -30000,
         endYear: -2600,
         group: "狩猟採取",
       },
       {
         type: "deer",
         size: "small",
-        startYear: -7000,
+        startYear: -30000,
         endYear: -2600,
         group: "狩猟採取",
       },
@@ -494,13 +515,14 @@ export const locationsData: Location[] = [
         size: "normal",
         startYear: -6500,
         endYear: -2600,
+        group: "定住生活",
       },
     ],
     descriptions: [
       {
         eraId: "prehistoric",
         subPeriodId: "mehrgarh",
-        title: "メヘルガル文化",
+        title: "メヘルガル" + ruby("文化", "ぶんか"),
         period: "紀元前7000年ごろ〜紀元前2600年ごろ",
         image: null,
         content:
