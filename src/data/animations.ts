@@ -14,9 +14,11 @@ export const animationComponents: Record<ActivityType, string> = {
   "making-doki": "making-doki-animation",
   "grain-gathering": "grain-gathering-animation",
   "making-tateana-house": "making-tateana-house-animation",
-  "making-madbrick-house": "making-madbrick-house-animation",
+  "making-mudbrick-house": "making-mudbrick-house-animation",
   "plowing-the-field": "plowing-the-field-animation",
-  "slowing-the-seeds": "slowing-the-seeds-animation",
+  "sowing-the-seeds": "sowing-the-seeds-animation",
+  "animal-domestication-pig": "animal-domestication-pig-animation",
+  "animal-domestication-goat": "animal-domestication-goat-animation",
 };
 
 /**
@@ -29,7 +31,9 @@ export const animationDescriptions: Record<ActivityType, string> = {
   "making-doki": "土を材料にして器を作っているよ",
   "grain-gathering": "自然に実っている穀物を集めるよ",
   "making-tateana-house": "地面を掘って家を建てるよ",
-  "making-madbrick-house": "石や木で家を建てるよ",
+  "making-mudbrick-house": "石や木で家を建てるよ",
   "plowing-the-field": "畑を耕して作物を育てるよ",
-  "slowing-the-seeds": "種を蒔いて作物を育てるよ",
+  "sowing-the-seeds": "種を蒔いて作物を育てるよ",
+  "animal-domestication-pig": "ブタを飼って食べ物を増やすよ",
+  "animal-domestication-goat": "ヤギを飼って食べ物を増やすよ",
 };

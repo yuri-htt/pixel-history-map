@@ -367,25 +367,25 @@ body,
 }
 
 /* 家を作るアニメーション（泥レンガ式） */
-.making-madbrick-house-animation {
+.making-mudbrick-house-animation {
   background-image: url("/making-house.png");
   background-repeat: no-repeat;
   image-rendering: pixelated; /* ドットをくっきり表示 */
 }
 
-.making-madbrick-house-animation.normal {
+.making-mudbrick-house-animation.normal {
   width: var(--animation-size);
   height: var(--animation-size);
   background-size: calc(var(--animation-size) * 7) var(--animation-size); /* 7コマ */
-  animation: making-madbrick-house-cycle-normal 2.8s steps(7) infinite;
+  animation: making-mudbrick-house-cycle-normal 2.8s steps(7) infinite;
 }
 
-.making-madbrick-house-animation.small {
+.making-mudbrick-house-animation.small {
   width: var(--animation-size-small);
   height: var(--animation-size-small);
   background-size: calc(var(--animation-size-small) * 7)
     var(--animation-size-small); /* 7コマ */
-  animation: making-madbrick-house-cycle-small 2.8s steps(7) infinite;
+  animation: making-mudbrick-house-cycle-small 2.8s steps(7) infinite;
 }
 
 /* 竪穴式住居を作るアニメーション */
@@ -433,25 +433,69 @@ body,
 }
 
 /* 種を蒔くアニメーション */
-.slowing-the-seeds-animation {
-  background-image: url("/slowing-the-seeds.png");
+.sowing-the-seeds-animation {
+  background-image: url("/sowing-the-seeds.png");
   background-repeat: no-repeat;
   image-rendering: pixelated; /* ドットをくっきり表示 */
 }
 
-.slowing-the-seeds-animation.normal {
+.sowing-the-seeds-animation.normal {
   width: var(--animation-size);
   height: var(--animation-size);
   background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
-  animation: slowing-the-seeds-cycle-normal 1.6s steps(4) infinite;
+  animation: sowing-the-seeds-cycle-normal 1.6s steps(4) infinite;
 }
 
-.slowing-the-seeds-animation.small {
+.sowing-the-seeds-animation.small {
   width: var(--animation-size-small);
   height: var(--animation-size-small);
   background-size: calc(var(--animation-size-small) * 4)
     var(--animation-size-small); /* 4コマ */
-  animation: slowing-the-seeds-cycle-small 1.6s steps(4) infinite;
+  animation: sowing-the-seeds-cycle-small 1.6s steps(4) infinite;
+}
+
+/* 動物飼育（豚）アニメーション */
+.animal-domestication-pig-animation {
+  background-image: url("/animal-domestication-pig.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.animal-domestication-pig-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: animal-domestication-pig-cycle-normal 1.6s steps(4) infinite;
+}
+
+.animal-domestication-pig-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: animal-domestication-pig-cycle-small 1.6s steps(4) infinite;
+}
+
+/* 動物飼育（ヤギ）アニメーション */
+.animal-domestication-goat-animation {
+  background-image: url("/animal-domestication-goat.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.animal-domestication-goat-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: animal-domestication-goat-cycle-normal 1.6s steps(4) infinite;
+}
+
+.animal-domestication-goat-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: animal-domestication-goat-cycle-small 1.6s steps(4) infinite;
 }
 
 /* 地域名ラベル */
@@ -997,7 +1041,7 @@ body,
   }
 }
 
-@keyframes making-madbrick-house-cycle-normal {
+@keyframes making-mudbrick-house-cycle-normal {
   from {
     background-position: 0 0;
   }
@@ -1006,7 +1050,7 @@ body,
   }
 }
 
-@keyframes making-madbrick-house-cycle-small {
+@keyframes making-mudbrick-house-cycle-small {
   from {
     background-position: 0 0;
   }
@@ -1051,7 +1095,7 @@ body,
   }
 }
 
-@keyframes slowing-the-seeds-cycle-normal {
+@keyframes sowing-the-seeds-cycle-normal {
   from {
     background-position: 0 0;
   }
@@ -1060,7 +1104,43 @@ body,
   }
 }
 
-@keyframes slowing-the-seeds-cycle-small {
+@keyframes sowing-the-seeds-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes animal-domestication-pig-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes animal-domestication-pig-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes animal-domestication-goat-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes animal-domestication-goat-cycle-small {
   from {
     background-position: 0 0;
   }

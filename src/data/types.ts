@@ -38,9 +38,11 @@ export const ACTIVITY_TYPES = {
   MAKING_DOKI: "making-doki",
   GRAIN_GATHERING: "grain-gathering",
   MAKING_TATEANA_HOUSE: "making-tateana-house",
-  MAKING_MADBRICK_HOUSE: "making-madbrick-house",
+  MAKING_mudbrick_HOUSE: "making-mudbrick-house",
   PLOWING_THE_FIELD: "plowing-the-field",
-  SLOWING_THE_SEEDS: "slowing-the-seeds",
+  SLOWING_THE_SEEDS: "sowing-the-seeds",
+  ANIMAL_DOMESTICATION_PIG: "animal-domestication-pig",
+  ANIMAL_DOMESTICATION_GOAT: "animal-domestication-goat",
 } as const;
 
 export type ActivityType = (typeof ACTIVITY_TYPES)[keyof typeof ACTIVITY_TYPES];
