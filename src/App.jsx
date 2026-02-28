@@ -37,25 +37,90 @@ const getAnimationSizes = () => {
   };
 };
 
-// 位置計算関数
-const getAnimationPosition = (position, animations) => {
-  const MARGIN = 10; // 拠点マークからの距離
-  const sizes = getAnimationSizes();
-  // 各アニメーションの幅を合計
-  const totalWidth = animations.reduce((sum, anim) => {
-    const size = anim.size === "small" ? sizes.small : sizes.normal;
-    return sum + size;
-  }, 0);
-  // 最大の高さを取得
-  const totalHeight = Math.max(
-    ...animations.map((anim) =>
-      anim.size === "small" ? sizes.small : sizes.normal,
-    ),
-  );
+// アニメーションをグループ化する関数
+const groupAnimations = (animations) => {
+  const groups = new Map();
+  const noGroup = [];
 
+  animations.forEach((anim) => {
+    if (anim.group) {
+      if (!groups.has(anim.group)) {
+        groups.set(anim.group, []);
+      }
+      groups.get(anim.group).push(anim);
+    } else {
+      noGroup.push(anim);
+    }
+  });
+
+  const result = [];
+  groups.forEach((anims, groupName) => {
+    result.push({ groupName, animations: anims });
+  });
+  noGroup.forEach((anim) => {
+    result.push({ groupName: null, animations: [anim] });
+  });
+
+  return result;
+};
+
+// グループのレイアウトを計算する関数
+const calculateGroupLayout = (groupedAnimations, position) => {
+  const MARGIN = 10; // 拠点マークからの距離
+  const GROUP_GAP = 5; // グループ間の距離
+  const MAX_COLS = 4; // 横に並べる最大数
+  const LABEL_HEIGHT = 14; // グループラベルの高さ（6pxフォント + パディング）
+  const sizes = getAnimationSizes();
+
+  // 各グループのサイズとレイアウトを計算
+  const groupLayouts = groupedAnimations.map((group) => {
+    const anims = group.animations;
+
+    // アニメーションを最大4個ずつの行に分割
+    const rows = [];
+    for (let i = 0; i < anims.length; i += MAX_COLS) {
+      rows.push(anims.slice(i, i + MAX_COLS));
+    }
+
+    // 各行の幅と高さを計算
+    const rowWidths = rows.map((row) =>
+      row.reduce((sum, anim) => {
+        const size = anim.size === "small" ? sizes.small : sizes.normal;
+        return sum + size;
+      }, 0)
+    );
+    const rowHeights = rows.map((row) =>
+      Math.max(
+        ...row.map((anim) =>
+          anim.size === "small" ? sizes.small : sizes.normal
+        )
+      )
+    );
+
+    const width = Math.max(...rowWidths);
+    const animationsHeight = rowHeights.reduce((sum, h) => sum + h, 0);
+    const height = animationsHeight + (group.groupName ? LABEL_HEIGHT : 0);
+
+    return {
+      ...group,
+      rows,
+      width,
+      height,
+      animationsHeight,
+      rowWidths,
+      rowHeights,
+    };
+  });
+
+  // 全体の幅と高さを計算（横方向にグループを配置）
+  const totalWidth = groupLayouts.reduce((sum, g) => sum + g.width, 0) +
+                     GROUP_GAP * Math.max(0, groupLayouts.length - 1);
+  const totalHeight = Math.max(...groupLayouts.map((g) => g.height));
+
+  // 基準位置を計算
   const positions = {
     上: { x: -totalWidth / 2, y: -totalHeight - MARGIN },
-    下: { x: -totalWidth / 2, y: MARGIN + 5 }, // 地名分5px下にずらす
+    下: { x: -totalWidth / 2, y: MARGIN + 5 },
     左: { x: -totalWidth - MARGIN, y: -totalHeight / 2 },
     右: { x: MARGIN, y: -totalHeight / 2 },
     左上: { x: -totalWidth - MARGIN, y: -totalHeight - MARGIN },
@@ -64,7 +129,22 @@ const getAnimationPosition = (position, animations) => {
     右下: { x: MARGIN, y: MARGIN },
   };
 
-  return positions[position] || positions["上"];
+  const basePos = positions[position] || positions["上"];
+
+  // 各グループの位置を計算
+  let currentX = 0;
+  groupLayouts.forEach((group) => {
+    group.x = currentX;
+    group.y = 0;
+    currentX += group.width + GROUP_GAP;
+  });
+
+  return {
+    groupLayouts,
+    totalWidth,
+    totalHeight,
+    basePos,
+  };
 };
 
 // スライダー値から実際の年代への変換（非線形）
@@ -451,22 +531,10 @@ function App() {
 
               // 地球の裏側にある場合は非表示
               if (!isLocationVisible(location.coordinates)) return null;
-              const sizes = getAnimationSizes();
-              const pos = getAnimationPosition(
-                location.position,
-                displayAnimations,
-              );
-              // 各アニメーションの幅を合計
-              const width = displayAnimations.reduce((sum, anim) => {
-                const size = anim.size === "small" ? sizes.small : sizes.normal;
-                return sum + size;
-              }, 0);
-              // 最大の高さを取得
-              const height = Math.max(
-                ...displayAnimations.map((anim) =>
-                  anim.size === "small" ? sizes.small : sizes.normal,
-                ),
-              );
+
+              // アニメーションをグループ化してレイアウトを計算
+              const groupedAnimations = groupAnimations(displayAnimations);
+              const layout = calculateGroupLayout(groupedAnimations, location.position);
 
               const isHovered = hoveredLocation === location.name;
               const isShrinking = shrinkingLocation === location.name;
@@ -511,46 +579,96 @@ function App() {
                   )}
 
                   <foreignObject
-                    x={pos.x}
-                    y={pos.y}
-                    width={width}
-                    height={height}
-                    style={{ pointerEvents: "auto" }}
+                    x={layout.basePos.x}
+                    y={layout.basePos.y}
+                    width={layout.totalWidth + 10}
+                    height={layout.totalHeight + 10}
+                    style={{ pointerEvents: "auto", overflow: "visible" }}
                   >
                     <div
-                      className={`animation-container ${isFadingOut ? "fade-out" : ""}`}
-                      style={{ pointerEvents: "auto" }}
+                      className={`animation-groups-container ${isFadingOut ? "fade-out" : ""}`}
+                      style={{
+                        pointerEvents: "auto",
+                        display: "flex",
+                        gap: "5px",
+                        width: "100%",
+                        height: "100%",
+                      }}
                     >
-                      {displayAnimations.map((anim, index) => {
-                        const sizeClass =
-                          anim.size === "small" ? "small" : "normal";
-                        const animKey = `${location.name}-${index}`;
-                        const isAnimHovered =
-                          hoveredAnimation && hoveredAnimation.key === animKey;
+                      {layout.groupLayouts.map((groupLayout, groupIndex) => {
                         return (
                           <div
-                            key={index}
-                            className="animation-wrapper"
-                            style={{ pointerEvents: "auto" }}
-                            onMouseEnter={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setTooltipPosition({
-                                x: rect.left + rect.width / 2,
-                                y: rect.top - 10,
-                              });
-                              setHoveredAnimation({
-                                key: animKey,
-                                type: anim.type,
-                              });
-                            }}
-                            onMouseLeave={() => {
-                              setHoveredAnimation(null);
+                            key={groupIndex}
+                            className="animation-group"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              gap: "4px",
                             }}
                           >
+                            {/* アニメーション */}
                             <div
-                              className={`${animationComponents[anim.type]} ${sizeClass}`}
-                              style={{ pointerEvents: "auto" }}
-                            />
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "0px",
+                              }}
+                            >
+                              {groupLayout.rows.map((row, rowIndex) => {
+                                return (
+                                  <div
+                                    key={rowIndex}
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      gap: "0px",
+                                    }}
+                                  >
+                                    {row.map((anim, colIndex) => {
+                                      const globalIndex = groupLayout.animations.indexOf(anim);
+                                      const sizeClass =
+                                        anim.size === "small" ? "small" : "normal";
+                                      const animKey = `${location.name}-${groupIndex}-${globalIndex}`;
+                                      return (
+                                        <div
+                                          key={colIndex}
+                                          className="animation-wrapper"
+                                          style={{ pointerEvents: "auto" }}
+                                          onMouseEnter={(e) => {
+                                            const rect =
+                                              e.currentTarget.getBoundingClientRect();
+                                            setTooltipPosition({
+                                              x: rect.left + rect.width / 2,
+                                              y: rect.top - 10,
+                                            });
+                                            setHoveredAnimation({
+                                              key: animKey,
+                                              type: anim.type,
+                                            });
+                                          }}
+                                          onMouseLeave={() => {
+                                            setHoveredAnimation(null);
+                                          }}
+                                        >
+                                          <div
+                                            className={`${animationComponents[anim.type]} ${sizeClass}`}
+                                            style={{ pointerEvents: "auto" }}
+                                          />
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* グループラベル */}
+                            {groupLayout.groupName && (
+                              <div className="animation-group-label">
+                                {groupLayout.groupName}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
