@@ -150,17 +150,47 @@ body,
 /* アニメーションコンテナ */
 .animation-container {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   animation: fadeIn 0.5s ease-in-out;
   pointer-events: auto;
+}
+
+/* アニメーショングループコンテナ */
+.animation-groups-container {
+  animation: fadeIn 0.5s ease-in-out;
+  pointer-events: auto;
+}
+
+.animation-groups-container.fade-out {
+  animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+/* アニメーショングループ */
+.animation-group {
+  pointer-events: auto;
+}
+
+/* アニメーショングループラベル */
+.animation-group-label {
+  font-size: 6px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1px 4px;
+  border-radius: 6px;
+  border: 0.5px solid #ddd;
+  white-space: nowrap;
+  text-align: center;
+  font-weight: 500;
 }
 
 /* アニメーションラッパー（hover用） */
 .animation-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: flex-end;
   cursor: pointer;
   pointer-events: auto;
+  height: var(--animation-size); /* 最大サイズに合わせる */
 }
 
 /* アニメーションツールチップ */
@@ -270,6 +300,28 @@ body,
   animation: boar-cycle-small 1.6s steps(4) infinite;
 }
 
+/* 鹿アニメーション */
+.deer-animation {
+  background-image: url("/deer.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.deer-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: deer-cycle-normal 1.6s steps(4) infinite;
+}
+
+.deer-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: deer-cycle-small 1.6s steps(4) infinite;
+}
+
 /* 土器作成アニメーション */
 .making-doki-animation {
   background-image: url("/making-doki.png");
@@ -314,26 +366,92 @@ body,
   animation: grain-gathering-cycle-small 1.6s steps(4) infinite;
 }
 
-/* 家を作るアニメーション */
-.making-house-animation {
+/* 家を作るアニメーション（泥レンガ式） */
+.making-madbrick-house-animation {
   background-image: url("/making-house.png");
   background-repeat: no-repeat;
   image-rendering: pixelated; /* ドットをくっきり表示 */
 }
 
-.making-house-animation.normal {
+.making-madbrick-house-animation.normal {
   width: var(--animation-size);
   height: var(--animation-size);
   background-size: calc(var(--animation-size) * 7) var(--animation-size); /* 7コマ */
-  animation: making-house-cycle-normal 2.8s steps(7) infinite;
+  animation: making-madbrick-house-cycle-normal 2.8s steps(7) infinite;
 }
 
-.making-house-animation.small {
+.making-madbrick-house-animation.small {
   width: var(--animation-size-small);
   height: var(--animation-size-small);
   background-size: calc(var(--animation-size-small) * 7)
     var(--animation-size-small); /* 7コマ */
-  animation: making-house-cycle-small 2.8s steps(7) infinite;
+  animation: making-madbrick-house-cycle-small 2.8s steps(7) infinite;
+}
+
+/* 竪穴式住居を作るアニメーション */
+.making-tateana-house-animation {
+  background-image: url("/making-tateana-house.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.making-tateana-house-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 5) var(--animation-size); /* 5コマ */
+  animation: making-tateana-house-cycle-normal 2s steps(5) infinite;
+}
+
+.making-tateana-house-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 5)
+    var(--animation-size-small); /* 5コマ */
+  animation: making-tateana-house-cycle-small 2s steps(5) infinite;
+}
+
+/* 畑を耕すアニメーション */
+.plowing-the-field-animation {
+  background-image: url("/plowing-the-field.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.plowing-the-field-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: plowing-the-field-cycle-normal 1.6s steps(4) infinite;
+}
+
+.plowing-the-field-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: plowing-the-field-cycle-small 1.6s steps(4) infinite;
+}
+
+/* 種を蒔くアニメーション */
+.slowing-the-seeds-animation {
+  background-image: url("/slowing-the-seeds.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.slowing-the-seeds-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 4) var(--animation-size); /* 4コマ */
+  animation: slowing-the-seeds-cycle-normal 1.6s steps(4) infinite;
+}
+
+.slowing-the-seeds-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 4)
+    var(--animation-size-small); /* 4コマ */
+  animation: slowing-the-seeds-cycle-small 1.6s steps(4) infinite;
 }
 
 /* 地域名ラベル */
@@ -825,6 +943,24 @@ body,
   }
 }
 
+@keyframes deer-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes deer-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
+  }
+}
+
 @keyframes making-doki-cycle-normal {
   from {
     background-position: 0 0;
@@ -861,7 +997,7 @@ body,
   }
 }
 
-@keyframes making-house-cycle-normal {
+@keyframes making-madbrick-house-cycle-normal {
   from {
     background-position: 0 0;
   }
@@ -870,11 +1006,65 @@ body,
   }
 }
 
-@keyframes making-house-cycle-small {
+@keyframes making-madbrick-house-cycle-small {
   from {
     background-position: 0 0;
   }
   to {
     background-position: calc(var(--animation-size-small) * -7) 0; /* 7コマ */
+  }
+}
+
+@keyframes making-tateana-house-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -5) 0; /* 5コマ */
+  }
+}
+
+@keyframes making-tateana-house-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -5) 0; /* 5コマ */
+  }
+}
+
+@keyframes plowing-the-field-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes plowing-the-field-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes slowing-the-seeds-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -4) 0; /* 4コマ */
+  }
+}
+
+@keyframes slowing-the-seeds-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -4) 0; /* 4コマ */
   }
 }
