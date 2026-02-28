@@ -21,7 +21,7 @@ import {
   animationDescriptions,
   eraDefinitions,
   getEraByYear,
-} from "./data/locationsData";
+} from "./data";
 
 // 世界地図データ
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
