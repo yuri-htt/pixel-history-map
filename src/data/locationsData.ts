@@ -753,3 +753,12 @@ export const animationComponents: Record<ActivityType, string> = {
   "grain-gathering": "grain-gathering-animation",
   "making-house": "making-house-animation",
 };
+
+// アニメーションの説明文
+export const animationDescriptions: Record<ActivityType, string> = {
+  hunting: "野生の動物を狩って食べるよ",
+  boar: "逃げろー！",
+  "making-doki": "土を材料にして器を作っているよ",
+  "grain-gathering": "自然に実っている穀物を集めるよ",
+  "making-house": "石や木で家を建てるよ",
+};
