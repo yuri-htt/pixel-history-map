@@ -224,9 +224,13 @@ export type RegionId = keyof typeof eraSubPeriodsByRegion;
 export const ACTIVITY_TYPES = {
   HUNTING: "hunting",
   BOAR: "boar",
+  DEER: "deer",
   MAKING_DOKI: "making-doki",
   GRAIN_GATHERING: "grain-gathering",
-  MAKING_HOUSE: "making-house",
+  MAKING_TATEANA_HOUSE: "making-tateana-house",
+  MAKING_MADBRICK_HOUSE: "making-madbrick-house",
+  PLOWING_THE_FIELD: "plowing-the-field",
+  SLOWING_THE_SEEDS: "slowing-the-seeds",
 } as const;
 
 export type ActivityType = (typeof ACTIVITY_TYPES)[keyof typeof ACTIVITY_TYPES];
@@ -244,6 +248,7 @@ export type Activity = {
   size: ActivitySize;
   startYear: number;
   endYear: number | null;
+  group?: string; // グループ名（オプショナル）
 };
 
 type DetailSection = {
@@ -258,8 +263,8 @@ type DetailContent = {
 // キーポイントの型定義
 export const KEY_POINT_TYPES = {
   FACT: "fact",
-  IMPACT: "impact", //💡
-  LIFE: "life", //
+  IMPACT: "impact",
+  LIFE: "life",
   CULTURE: "culture",
 } as const;
 
@@ -315,9 +320,20 @@ export const locationsData: Location[] = [
     name: "日本列島",
     coordinates: [139, 36],
     activities: [
-      { type: "hunting", size: "normal", startYear: -14000, endYear: -300 },
-      { type: "boar", size: "small", startYear: -14000, endYear: -300 },
-      { type: "making-doki", size: "normal", startYear: -14000, endYear: null },
+      { type: "hunting", size: "normal", startYear: -30000, endYear: -300 },
+      { type: "boar", size: "small", startYear: -30000, endYear: -300 },
+      {
+        type: "making-doki",
+        size: "normal",
+        startYear: -14000,
+        endYear: -300,
+      },
+      {
+        type: "making-tateana-house",
+        size: "normal",
+        startYear: -14000,
+        endYear: 1200,
+      },
     ],
     descriptions: [
       {
@@ -370,23 +386,54 @@ export const locationsData: Location[] = [
     name: "黄河流域",
     coordinates: [112, 35],
     activities: [
-      // 初期新石器時代
-      // "川の近くで粟をまいて育てている場面",
-      // "磨いた石の道具で木を切っている場面",
-      // "川の近くでアワ（雑穀）をまいて育てているシーン",
-      // "土器でスープや穀物をコトコト煮ているシーン",
-      // "小さな家のまわりで食べ物を干して保存しているシーン"
+      // 初期：狩猟・採集（農耕が広がる前も含めて）
       {
-        type: "making-doki",
+        type: "hunting",
         size: "normal",
         startYear: -14000,
-        endYear: -3000,
+        endYear: -5000,
+        group: "狩猟採取",
       },
-      // 仰韶文化
-      // "赤や黒の模様をえがいた土器を作っている場面",
-      // "粟を刈り取って干している場面",
-      // "円形の村で家々が並び人びとが協力してくらしている場面"
-      // "家のまわりでブタを飼って世話しているシーン"
+      {
+        type: "deer",
+        size: "small",
+        startYear: -14000,
+        endYear: -5000,
+        group: "狩猟採取",
+      },
+
+      // 初期新石器〜：雑穀（アワ）栽培が広がる
+      {
+        type: "slowing-the-seeds",
+        size: "normal",
+        startYear: -8000,
+        endYear: -3000,
+        group: "農業",
+      },
+      {
+        type: "plowing-the-field",
+        size: "normal",
+        startYear: -8000,
+        endYear: -3000,
+        group: "農業",
+      },
+
+      // 初期新石器〜：土器（煮炊き・保存）
+      {
+        type: "making-doki",
+        size: "small",
+        startYear: -8000,
+        endYear: -1900,
+        group: "土器作り",
+      },
+
+      // 仰韶〜：ブタなどの家畜（飼育）
+      // {
+      //   type: "animal-domestication-pig",
+      //   size: "normal",
+      //   startYear: -5000,
+      //   endYear: -3000,
+      // },
     ],
     descriptions: [
       {
@@ -504,7 +551,7 @@ export const locationsData: Location[] = [
         endYear: null,
       },
       {
-        type: "making-house",
+        type: "making-madbrick-house",
         size: "normal",
         startYear: -14000,
         endYear: null,
@@ -785,16 +832,24 @@ export function getAllSubPeriodsByYear(
 export const animationComponents: Record<ActivityType, string> = {
   hunting: "hunting-animation",
   boar: "boar-animation",
+  deer: "deer-animation",
   "making-doki": "making-doki-animation",
   "grain-gathering": "grain-gathering-animation",
-  "making-house": "making-house-animation",
+  "making-tateana-house": "making-tateana-house-animation",
+  "making-madbrick-house": "making-madbrick-house-animation",
+  "plowing-the-field": "plowing-the-field-animation",
+  "slowing-the-seeds": "slowing-the-seeds-animation",
 };
 
 // アニメーションの説明文
 export const animationDescriptions: Record<ActivityType, string> = {
   hunting: "野生の動物を狩って食べるよ",
   boar: "逃げろー！",
+  deer: "逃げろー！",
   "making-doki": "土を材料にして器を作っているよ",
   "grain-gathering": "自然に実っている穀物を集めるよ",
-  "making-house": "石や木で家を建てるよ",
+  "making-tateana-house": "地面を掘って家を建てるよ",
+  "making-madbrick-house": "石や木で家を建てるよ",
+  "plowing-the-field": "畑を耕して作物を育てるよ",
+  "slowing-the-seeds": "種を蒔いて作物を育てるよ",
 };
