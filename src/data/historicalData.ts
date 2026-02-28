@@ -16,28 +16,28 @@ export const locationsData: Location[] = [
         type: "hunting",
         size: "normal",
         startYear: -30000,
-        endYear: -300,
+        endYear: -900,
         group: "狩猟採取",
       },
       {
         type: "boar",
         size: "small",
         startYear: -30000,
-        endYear: -300,
+        endYear: -900,
         group: "狩猟採取",
       },
       {
         type: "making-doki",
         size: "small",
         startYear: -14000,
-        endYear: -300,
+        endYear: -900,
         group: "土器作り",
       },
       {
         type: "making-tateana-house",
         size: "normal",
         startYear: -14000,
-        endYear: 1200,
+        endYear: 300,
         group: "定住生活",
       },
     ],
@@ -97,20 +97,20 @@ export const locationsData: Location[] = [
         type: "hunting",
         size: "normal",
         startYear: -14000,
-        endYear: -5000,
+        endYear: -3000,
         group: "狩猟採取",
       },
       {
         type: "deer",
         size: "small",
         startYear: -14000,
-        endYear: -5000,
+        endYear: -3000,
         group: "狩猟採取",
       },
 
       // 初期新石器〜：雑穀（アワ）栽培が広がる
       {
-        type: "slowing-the-seeds",
+        type: "sowing-the-seeds",
         size: "normal",
         startYear: -8000,
         endYear: -3000,
@@ -134,12 +134,13 @@ export const locationsData: Location[] = [
       },
 
       // 仰韶〜：ブタなどの家畜（飼育）
-      // {
-      //   type: "animal-domestication-pig",
-      //   size: "normal",
-      //   startYear: -5000,
-      //   endYear: -3000,
-      // },
+      {
+        type: "animal-domestication-pig",
+        size: "normal",
+        startYear: -5000,
+        endYear: -3000,
+        group: "家畜飼育",
+      },
     ],
     descriptions: [
       {
@@ -248,19 +249,40 @@ export const locationsData: Location[] = [
     name: "肥沃三日月",
     coordinates: [40, 35],
     activities: [
-      { type: "hunting", size: "normal", startYear: -14000, endYear: null },
-      { type: "boar", size: "small", startYear: -14000, endYear: null },
+      {
+        type: "hunting",
+        size: "normal",
+        startYear: -12500,
+        endYear: -4000,
+        group: "狩猟採取",
+      },
+      {
+        type: "deer",
+        size: "small",
+        startYear: -12500,
+        endYear: -4000,
+        group: "狩猟採取",
+      },
       {
         type: "grain-gathering",
         size: "normal",
-        startYear: -14000,
-        endYear: null,
+        startYear: -12500,
+        endYear: -10000,
+        group: "穀物集め",
       },
       {
-        type: "making-madbrick-house",
+        type: "animal-domestication-goat",
         size: "normal",
-        startYear: -14000,
-        endYear: null,
+        startYear: -9000,
+        endYear: -4000,
+        group: "家畜飼育",
+      },
+      {
+        type: "making-mudbrick-house",
+        size: "normal",
+        startYear: -9000,
+        endYear: -4000,
+        group: "定住生活",
       },
     ],
     descriptions: [
@@ -338,8 +360,52 @@ export const locationsData: Location[] = [
     name: "ナイル流域",
     coordinates: [31, 26],
     activities: [
-      { type: "hunting", size: "normal", startYear: -14000, endYear: null },
-      { type: "boar", size: "small", startYear: -14000, endYear: null },
+      // 狩猟（ナイル沿いの野生動物）
+      {
+        type: "hunting",
+        size: "normal",
+        startYear: -8000,
+        endYear: -3100,
+        group: "狩猟採取",
+      },
+      {
+        type: "deer",
+        size: "small",
+        startYear: -8000,
+        endYear: -3100,
+        group: "狩猟採取",
+      },
+      // 小麦・大麦の農耕（肥沃三日月の影響）
+      {
+        type: "sowing-the-seeds",
+        size: "normal",
+        startYear: -5000,
+        endYear: -3100,
+        group: "農業",
+      },
+      {
+        type: "plowing-the-field",
+        size: "normal",
+        startYear: -5000,
+        endYear: -3100,
+        group: "農業",
+      },
+      // ヤギ・ヒツジの家畜化
+      {
+        type: "animal-domestication-goat",
+        size: "normal",
+        startYear: -5000,
+        endYear: -3100,
+        group: "家畜飼育",
+      },
+      // 土器文化（バダリ文化の特徴）
+      {
+        type: "making-doki",
+        size: "normal",
+        startYear: -4400,
+        endYear: -4000,
+        group: "土器作り",
+      },
     ],
     descriptions: [
       {
@@ -384,8 +450,51 @@ export const locationsData: Location[] = [
     name: "インダス流域",
     coordinates: [68, 27],
     activities: [
-      { type: "hunting", size: "normal", startYear: -14000, endYear: null },
-      { type: "boar", size: "small", startYear: -14000, endYear: null },
+      // 狩猟（農耕開始後も継続）
+      {
+        type: "hunting",
+        size: "normal",
+        startYear: -7000,
+        endYear: -2600,
+        group: "狩猟採取",
+      },
+      {
+        type: "deer",
+        size: "small",
+        startYear: -7000,
+        endYear: -2600,
+        group: "狩猟採取",
+      },
+      // 小麦・大麦農耕
+      {
+        type: "sowing-the-seeds",
+        size: "normal",
+        startYear: -7000,
+        endYear: -2600,
+        group: "農業",
+      },
+      {
+        type: "plowing-the-field",
+        size: "normal",
+        startYear: -7000,
+        endYear: -2600,
+        group: "農業",
+      },
+      // ヤギ家畜化
+      {
+        type: "animal-domestication-goat",
+        size: "normal",
+        startYear: -7000,
+        endYear: -2600,
+        group: "家畜飼育",
+      },
+      // 日干しレンガ建築（都市前段階）
+      {
+        type: "making-mudbrick-house",
+        size: "normal",
+        startYear: -6500,
+        endYear: -2600,
+      },
     ],
     descriptions: [
       {
