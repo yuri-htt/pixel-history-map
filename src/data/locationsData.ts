@@ -25,12 +25,48 @@ export function createRubyHTML(text: string): { __html: string } {
 // 1) 時代区分の定義（唯一の正）
 // ================================
 export const eraDefinitions = [
-  { id: "prehistoric", label: "先史時代", startYear: -14000, endYear: -3000 },
-  { id: "ancient", label: "古代", startYear: -3000, endYear: 500 },
-  { id: "medieval", label: "中世", startYear: 500, endYear: 1500 },
-  { id: "earlyModern", label: "近世", startYear: 1500, endYear: 1800 },
-  { id: "modern", label: "近代", startYear: 1800, endYear: 1945 },
-  { id: "contemporary", label: "現代", startYear: 1945, endYear: null },
+  {
+    id: "prehistoric",
+    label: "先史時代",
+    startYear: -14000,
+    endYear: -3000,
+    description: "文字がまだ使われていない時代",
+  },
+  {
+    id: "ancient",
+    label: "古代",
+    startYear: -3000,
+    endYear: 500,
+    description: "文明が誕生し、文字が使われ始めた時代",
+  },
+  {
+    id: "medieval",
+    label: "中世",
+    startYear: 500,
+    endYear: 1500,
+    description: "封建制度が広がり、宗教が社会を支配した時代",
+  },
+  {
+    id: "earlyModern",
+    label: "近世",
+    startYear: 1500,
+    endYear: 1800,
+    description: "大航海時代が始まり、世界が繋がり始めた時代",
+  },
+  {
+    id: "modern",
+    label: "近代",
+    startYear: 1800,
+    endYear: 1945,
+    description: "産業革命により社会が大きく変化した時代",
+  },
+  {
+    id: "contemporary",
+    label: "現代",
+    startYear: 1945,
+    endYear: null,
+    description: "情報技術が発展し、グローバル化が進んだ時代",
+  },
 ] as const;
 
 export type EraId = (typeof eraDefinitions)[number]["id"];
