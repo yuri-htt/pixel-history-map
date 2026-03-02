@@ -432,21 +432,28 @@ function App() {
     const [lon, lat] = coordinates;
     const [rotLon, rotLat] = rotation;
 
-    // 回転後の経度差を計算
-    let lonDiff = lon - -rotLon;
+    // 度数法からラジアンに変換
+    const toRad = (deg) => (deg * Math.PI) / 180;
 
-    // -180から180の範囲に正規化
-    while (lonDiff > 180) lonDiff -= 360;
-    while (lonDiff < -180) lonDiff += 360;
+    // 拠点の3D座標を計算（球面座標から直交座標へ）
+    const pointLonRad = toRad(lon);
+    const pointLatRad = toRad(lat);
+    const pointX = Math.cos(pointLatRad) * Math.cos(pointLonRad);
+    const pointY = Math.cos(pointLatRad) * Math.sin(pointLonRad);
+    const pointZ = Math.sin(pointLatRad);
 
-    // 緯度差を計算
-    const latDiff = lat - rotLat;
+    // カメラの向き（回転の逆方向）を計算
+    const viewLonRad = toRad(-rotLon);
+    const viewLatRad = toRad(-rotLat);
+    const viewX = Math.cos(viewLatRad) * Math.cos(viewLonRad);
+    const viewY = Math.cos(viewLatRad) * Math.sin(viewLonRad);
+    const viewZ = Math.sin(viewLatRad);
 
-    // 表側の条件：経度差が-90度から90度の範囲内
-    // かつ緯度が極端に離れていない
-    const isVisible = Math.abs(lonDiff) < 90;
+    // 内積を計算（ドット積）
+    // 内積が正の場合、点はカメラの方向を向いている（表側）
+    const dotProduct = pointX * viewX + pointY * viewY + pointZ * viewZ;
 
-    return isVisible;
+    return dotProduct > 0;
   };
 
   // 各拠点のFloating UI設定を作成する関数
