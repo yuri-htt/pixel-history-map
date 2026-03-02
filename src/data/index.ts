@@ -35,6 +35,9 @@ export {
   eraSubPeriodsByRegion,
 } from "./eraDefinitions";
 
+// ルビ機能
+export { rubyDictionary, autoRuby, stripRuby } from "./rubyDictionary";
+
 // アニメーション定義
 export { animationComponents, animationDescriptions } from "./animations";
 
