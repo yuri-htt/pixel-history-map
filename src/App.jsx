@@ -348,6 +348,17 @@ function App() {
   const yearsAgo = currentYear - year;
   const yearsAgoText = yearsAgo > 0 ? `約${yearsAgo.toLocaleString()}年前` : "";
 
+  // アニメーション登場タイミングを収集（重複を除く）
+  const activityStartYears = useMemo(() => {
+    const years = new Set();
+    locationsData.forEach((location) => {
+      location.activities.forEach((activity) => {
+        years.add(activity.startYear);
+      });
+    });
+    return Array.from(years).sort((a, b) => a - b);
+  }, []);
+
   // 現在の年代でフィルタリングされた拠点データ
   const filteredLocations = useMemo(() => {
     return locationsData.map((location) => ({
@@ -646,7 +657,7 @@ function App() {
                                       return (
                                         <div
                                           key={colIndex}
-                                          className="animation-wrapper"
+                                          className={`animation-wrapper ${isFadingOut ? "fade-out" : ""}`}
                                           style={{ pointerEvents: "auto" }}
                                           onMouseEnter={(e) => {
                                             const rect =
@@ -665,7 +676,7 @@ function App() {
                                           }}
                                         >
                                           <div
-                                            className={`${animationComponents[anim.type]} ${sizeClass}`}
+                                            className={`${animationComponents[anim.type]} ${sizeClass} activity-animation`}
                                             style={{ pointerEvents: "auto" }}
                                           />
                                         </div>
@@ -765,38 +776,57 @@ function App() {
 
           {/* スライダーと時代区分の目印 */}
           <div className="slider-container">
-            {/* 時代区分の目印 */}
+            {/* 時代区分の目印（暖色） */}
             <div className="era-markers">
               <div
                 className="era-marker"
                 style={{ left: `${yearToSlider(-3000)}%` }}
+                onClick={() => setSliderValue(yearToSlider(-3000))}
               >
-                <div className="era-marker-dot"></div>
+                <div className="era-marker-dot era"></div>
               </div>
               <div
                 className="era-marker"
                 style={{ left: `${yearToSlider(500)}%` }}
+                onClick={() => setSliderValue(yearToSlider(500))}
               >
-                <div className="era-marker-dot"></div>
+                <div className="era-marker-dot era"></div>
               </div>
               <div
                 className="era-marker"
                 style={{ left: `${yearToSlider(1500)}%` }}
+                onClick={() => setSliderValue(yearToSlider(1500))}
               >
-                <div className="era-marker-dot"></div>
+                <div className="era-marker-dot era"></div>
               </div>
               <div
                 className="era-marker"
                 style={{ left: `${yearToSlider(1800)}%` }}
+                onClick={() => setSliderValue(yearToSlider(1800))}
               >
-                <div className="era-marker-dot"></div>
+                <div className="era-marker-dot era"></div>
               </div>
               <div
                 className="era-marker"
                 style={{ left: `${yearToSlider(1945)}%` }}
+                onClick={() => setSliderValue(yearToSlider(1945))}
               >
-                <div className="era-marker-dot"></div>
+                <div className="era-marker-dot era"></div>
               </div>
+            </div>
+
+            {/* アニメーション登場タイミングの目印（グレー・小さめ） */}
+            <div className="activity-markers">
+              {activityStartYears.map((startYear) => (
+                <div
+                  key={startYear}
+                  className="activity-marker"
+                  style={{ left: `${yearToSlider(startYear)}%` }}
+                  onClick={() => setSliderValue(yearToSlider(startYear))}
+                >
+                  <div className="activity-marker-dot"></div>
+                </div>
+              ))}
             </div>
 
             <input
