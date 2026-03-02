@@ -107,6 +107,7 @@ body,
   width: 100%;
   height: 10px;
   pointer-events: none;
+  z-index: 2;
 }
 
 .era-marker {
@@ -115,14 +116,59 @@ body,
   display: flex;
   flex-direction: column;
   align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 4px;
 }
 
-.era-marker-dot {
+.era-marker:hover .era-marker-dot.era {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.era-marker-dot.era {
   width: 6px;
   height: 6px;
-  background-color: #ccc;
+  background-color: #fa6120;
   border-radius: 50%;
-  opacity: 0.6;
+  opacity: 0.7;
+  transition: all 0.2s;
+}
+
+/* アニメーション登場タイミングの目印 */
+.activity-markers {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.activity-marker {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.activity-marker:hover .activity-marker-dot {
+  opacity: 0.8;
+  transform: scale(1.3);
+}
+
+.activity-marker-dot {
+  width: 4px;
+  height: 4px;
+  background-color: #999;
+  border-radius: 50%;
+  opacity: 0.5;
+  transition: all 0.2s;
 }
 
 /* =========================================
@@ -191,6 +237,11 @@ body,
   cursor: pointer;
   pointer-events: auto;
   height: var(--animation-size); /* 最大サイズに合わせる */
+  animation: activityFadeIn 0.6s ease-out;
+}
+
+.animation-wrapper.fade-out {
+  animation: activityFadeOut 0.6s ease-out forwards;
 }
 
 /* アニメーションツールチップ */
@@ -253,6 +304,29 @@ body,
   to {
     opacity: 0;
     transform: scale(0.8);
+  }
+}
+
+/* アクティビティアニメーション共通のフェードイン/アウト */
+@keyframes activityFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes activityFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.3) translateY(-8px);
   }
 }
 
@@ -408,6 +482,28 @@ body,
   background-size: calc(var(--animation-size-small) * 5)
     var(--animation-size-small); /* 5コマ */
   animation: making-tateana-house-cycle-small 2s steps(5) infinite;
+}
+
+/* 掘立柱建物を作るアニメーション */
+.making-hottate-house-animation {
+  background-image: url("/making-hottate-house.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated; /* ドットをくっきり表示 */
+}
+
+.making-hottate-house-animation.normal {
+  width: var(--animation-size);
+  height: var(--animation-size);
+  background-size: calc(var(--animation-size) * 7) var(--animation-size); /* 7コマ */
+  animation: making-hottate-house-cycle-normal 2.8s steps(7) infinite;
+}
+
+.making-hottate-house-animation.small {
+  width: var(--animation-size-small);
+  height: var(--animation-size-small);
+  background-size: calc(var(--animation-size-small) * 7)
+    var(--animation-size-small); /* 7コマ */
+  animation: making-hottate-house-cycle-small 2.8s steps(7) infinite;
 }
 
 /* 畑を耕すアニメーション */
@@ -1074,6 +1170,24 @@ body,
   }
   to {
     background-position: calc(var(--animation-size-small) * -5) 0; /* 5コマ */
+  }
+}
+
+@keyframes making-hottate-house-cycle-normal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size) * -7) 0; /* 7コマ */
+  }
+}
+
+@keyframes making-hottate-house-cycle-small {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(var(--animation-size-small) * -7) 0; /* 7コマ */
   }
 }
 

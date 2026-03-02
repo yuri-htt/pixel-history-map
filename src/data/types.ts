@@ -38,6 +38,7 @@ export const ACTIVITY_TYPES = {
   MAKING_DOKI: "making-doki",
   GRAIN_GATHERING: "grain-gathering",
   MAKING_TATEANA_HOUSE: "making-tateana-house",
+  MAKING_HOTTATE_HOUSE: "making-hottate-house",
   MAKING_mudbrick_HOUSE: "making-mudbrick-house",
   PLOWING_THE_FIELD: "plowing-the-field",
   SLOWING_THE_SEEDS: "sowing-the-seeds",
