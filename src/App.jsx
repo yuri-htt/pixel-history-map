@@ -87,14 +87,14 @@ const calculateGroupLayout = (groupedAnimations, position) => {
       row.reduce((sum, anim) => {
         const size = anim.size === "small" ? sizes.small : sizes.normal;
         return sum + size;
-      }, 0)
+      }, 0),
     );
     const rowHeights = rows.map((row) =>
       Math.max(
         ...row.map((anim) =>
-          anim.size === "small" ? sizes.small : sizes.normal
-        )
-      )
+          anim.size === "small" ? sizes.small : sizes.normal,
+        ),
+      ),
     );
 
     const width = Math.max(...rowWidths);
@@ -113,8 +113,9 @@ const calculateGroupLayout = (groupedAnimations, position) => {
   });
 
   // 全体の幅と高さを計算（横方向にグループを配置）
-  const totalWidth = groupLayouts.reduce((sum, g) => sum + g.width, 0) +
-                     GROUP_GAP * Math.max(0, groupLayouts.length - 1);
+  const totalWidth =
+    groupLayouts.reduce((sum, g) => sum + g.width, 0) +
+    GROUP_GAP * Math.max(0, groupLayouts.length - 1);
   const totalHeight = Math.max(...groupLayouts.map((g) => g.height));
 
   // 基準位置を計算
@@ -320,6 +321,8 @@ function App() {
   const [prevFilteredLocations, setPrevFilteredLocations] = useState([]);
   // フェードアウト中の拠点を管理
   const [fadingOutLocations, setFadingOutLocations] = useState(new Set());
+  // 前回の年を記録
+  const [prevYear, setPrevYear] = useState(-14000);
   // 地球儀の回転角度を管理 [経度, 緯度, ロール]
   const [rotation, setRotation] = useState([-80, 0, 0]);
   // ドラッグ状態
@@ -330,6 +333,10 @@ function App() {
   const [hoveredAnimation, setHoveredAnimation] = useState(null);
   // ツールチップの位置を管理
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  // 猫ちゃんの吹き出しメッセージ
+  const [tetoMessage, setTetoMessage] = useState(null);
+  // 吹き出しのタイムアウトIDを管理
+  const tetoTimeoutRef = useRef(null);
 
   // スライダー値から年代を計算
   const year = useMemo(() => sliderToYear(sliderValue), [sliderValue]);
@@ -372,9 +379,20 @@ function App() {
 
   // フィルタリングされた拠点が変わった時の処理
   useEffect(() => {
+    // 年が変わっていない場合は何もしない
+    if (year === prevYear) {
+      return;
+    }
+
+    // 前回の年のfilteredLocationsを計算
+    const prevYearFilteredLocations = locationsData.map((location) => ({
+      ...location,
+      animations: filterActivitiesByYear(location.activities, prevYear),
+    }));
+
     // 消えるアニメーションを検出
     const newFadingOut = new Set();
-    prevFilteredLocations.forEach((prevLoc) => {
+    prevYearFilteredLocations.forEach((prevLoc) => {
       const currentLoc = filteredLocations.find(
         (loc) => loc.name === prevLoc.name,
       );
@@ -387,17 +405,68 @@ function App() {
       }
     });
 
+    // 新しく現れたアクティビティを検出
+    const newActivities = [];
+
+    filteredLocations.forEach((currentLoc) => {
+      const prevLoc = prevYearFilteredLocations.find(
+        (loc) => loc.name === currentLoc.name,
+      );
+
+      if (prevLoc) {
+        currentLoc.animations.forEach((currentAnim) => {
+          const existed = prevLoc.animations.some(
+            (prevAnim) => prevAnim.type === currentAnim.type,
+          );
+          // 年が現在の年と前回の年の範囲内にあるかチェック
+          const yearInRange =
+            currentAnim.startYear > prevYear && currentAnim.startYear <= year;
+
+          if (!existed && yearInRange) {
+            newActivities.push({
+              location: currentLoc.name,
+              displayName: currentLoc.displayName || currentLoc.name,
+              type: currentAnim.type,
+              group: currentAnim.group,
+            });
+          }
+        });
+      }
+    });
+
+    // 新しいアクティビティがあれば猫ちゃんのメッセージを表示
+    if (newActivities.length > 0) {
+      const activity = newActivities[0];
+      // displayNameからHTMLタグを除去
+      const plainDisplayName = activity.displayName.replace(/<[^>]*>/g, "");
+      const message = `${plainDisplayName}で、\nはじめて${activity.group}が行われるようになったにゃ！`;
+      setTetoMessage(message);
+
+      // 既存のタイムアウトをクリア
+      if (tetoTimeoutRef.current) {
+        clearTimeout(tetoTimeoutRef.current);
+      }
+
+      // 11秒後にメッセージを消す
+      tetoTimeoutRef.current = setTimeout(() => {
+        setTetoMessage(null);
+        tetoTimeoutRef.current = null;
+      }, 11000);
+    }
+
+    // フェードアウト処理と状態更新
     if (newFadingOut.size > 0) {
       setFadingOutLocations(newFadingOut);
-      // フェードアウトアニメーション後にクリア
       setTimeout(() => {
         setFadingOutLocations(new Set());
         setPrevFilteredLocations(filteredLocations);
-      }, 500); // CSSのアニメーション時間と同じ
+        setPrevYear(year);
+      }, 500);
     } else {
       setPrevFilteredLocations(filteredLocations);
+      setPrevYear(year);
     }
-  }, [filteredLocations]);
+  }, [filteredLocations, year, prevYear]);
 
   // 地球儀の回転イベント
   const handleMouseDown = (e) => {
@@ -490,6 +559,15 @@ function App() {
     return { placement: "top", offset: 10 };
   };
 
+  // 猫ちゃんの吹き出しを閉じる関数
+  const handleCloseSpeechBubble = () => {
+    if (tetoTimeoutRef.current) {
+      clearTimeout(tetoTimeoutRef.current);
+      tetoTimeoutRef.current = null;
+    }
+    setTetoMessage(null);
+  };
+
   return (
     <div className="app-container">
       {/* メインコンテンツエリア */}
@@ -558,7 +636,10 @@ function App() {
 
               // アニメーションをグループ化してレイアウトを計算
               const groupedAnimations = groupAnimations(displayAnimations);
-              const layout = calculateGroupLayout(groupedAnimations, location.position);
+              const layout = calculateGroupLayout(
+                groupedAnimations,
+                location.position,
+              );
 
               const isHovered = hoveredLocation === location.name;
               const isShrinking = shrinkingLocation === location.name;
@@ -607,7 +688,12 @@ function App() {
                     y={layout.basePos.y}
                     width={layout.totalWidth + 10}
                     height={layout.totalHeight + 10}
-                    style={{ pointerEvents: "auto", overflow: "visible" }}
+                    style={{
+                      pointerEvents: "auto",
+                      overflow: "visible",
+                      transition:
+                        "x 0.4s ease-out, y 0.4s ease-out, width 0.4s ease-out, height 0.4s ease-out",
+                    }}
                   >
                     <div
                       className={`animation-groups-container ${isFadingOut ? "fade-out" : ""}`}
@@ -650,9 +736,12 @@ function App() {
                                     }}
                                   >
                                     {row.map((anim, colIndex) => {
-                                      const globalIndex = groupLayout.animations.indexOf(anim);
+                                      const globalIndex =
+                                        groupLayout.animations.indexOf(anim);
                                       const sizeClass =
-                                        anim.size === "small" ? "small" : "normal";
+                                        anim.size === "small"
+                                          ? "small"
+                                          : "normal";
                                       const animKey = `${location.name}-${groupIndex}-${globalIndex}`;
                                       return (
                                         <div
@@ -741,6 +830,22 @@ function App() {
 
         {/* --- UIエリア --- */}
         <div className="ui-panel">
+          {/* 寝ている猫ちゃんアニメーション */}
+          <div className="sleeping-teto-container">
+            <div className="sleeping-teto-animation"></div>
+            {tetoMessage && (
+              <div className="teto-speech-bubble">
+                <button
+                  className="teto-speech-close"
+                  onClick={handleCloseSpeechBubble}
+                >
+                  ×
+                </button>
+                {tetoMessage}
+              </div>
+            )}
+          </div>
+
           <div
             style={{
               display: "flex",

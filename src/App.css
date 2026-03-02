@@ -94,6 +94,105 @@ body,
   margin-top: 30px;
 }
 
+/* 寝ている猫ちゃんアニメーション */
+.sleeping-teto-container {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.sleeping-teto-animation {
+  width: 80px;
+  height: 80px;
+  background-image: url("/sleeping-teto.png");
+  background-size: calc(80px * 4) 80px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  animation: sleeping-teto-cycle 2.4s steps(4) infinite;
+}
+
+@keyframes sleeping-teto-cycle {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(80px * -4) 0;
+  }
+}
+
+/* 猫ちゃんの吹き出し */
+.teto-speech-bubble {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: #333;
+  padding: 12px 32px 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  animation: speechBubbleFadeIn 0.3s ease-out;
+  pointer-events: auto;
+  width: max-content;
+  max-width: min(400px, 90vw);
+  min-width: 150px;
+  text-align: center;
+  word-wrap: break-word;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* 猫ちゃんの吹き出しの閉じるボタン */
+.teto-speech-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.teto-speech-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.teto-speech-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 10px solid transparent;
+  border-top-color: white;
+}
+
+@keyframes speechBubbleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 .timeline-slider {
   width: 100%;
   margin: 0;
@@ -205,6 +304,7 @@ body,
 .animation-groups-container {
   animation: fadeIn 0.5s ease-in-out;
   pointer-events: auto;
+  transition: all 0.4s ease-out;
 }
 
 .animation-groups-container.fade-out {
@@ -214,6 +314,7 @@ body,
 /* アニメーショングループ */
 .animation-group {
   pointer-events: auto;
+  transition: all 0.4s ease-out;
 }
 
 /* アニメーショングループラベル */
@@ -227,6 +328,7 @@ body,
   white-space: nowrap;
   text-align: center;
   font-weight: 500;
+  transition: all 0.4s ease-out;
 }
 
 /* アニメーションラッパー（hover用） */
@@ -238,6 +340,7 @@ body,
   pointer-events: auto;
   height: var(--animation-size); /* 最大サイズに合わせる */
   animation: activityFadeIn 0.6s ease-out;
+  transition: all 0.4s ease-out;
 }
 
 .animation-wrapper.fade-out {
