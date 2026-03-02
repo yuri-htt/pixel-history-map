@@ -21,6 +21,7 @@ import {
   animationDescriptions,
   eraDefinitions,
   getEraByYear,
+  autoRuby,
 } from "./data";
 
 // 世界地図データ
@@ -337,6 +338,8 @@ function App() {
   const [tetoMessage, setTetoMessage] = useState(null);
   // 吹き出しのタイムアウトIDを管理
   const tetoTimeoutRef = useRef(null);
+  // 猫ちゃんが起きているかどうか
+  const [isTetoAwake, setIsTetoAwake] = useState(false);
 
   // スライダー値から年代を計算
   const year = useMemo(() => sliderToYear(sliderValue), [sliderValue]);
@@ -437,9 +440,13 @@ function App() {
     // 新しいアクティビティがあれば猫ちゃんのメッセージを表示
     if (newActivities.length > 0) {
       const activity = newActivities[0];
-      // displayNameからHTMLタグを除去
-      const plainDisplayName = activity.displayName.replace(/<[^>]*>/g, "");
-      const message = `${plainDisplayName}で、\nはじめて${activity.group}が行われるようになったにゃ！`;
+      // displayNameとgroupに自動的にルビを振る
+      const locationWithRuby = autoRuby(activity.displayName);
+      const groupWithRuby = autoRuby(activity.group);
+      const message = `${locationWithRuby}で、<br/>はじめて${groupWithRuby}が行われるようになったにゃ！`;
+
+      // 猫ちゃんを起こす
+      setIsTetoAwake(true);
       setTetoMessage(message);
 
       // 既存のタイムアウトをクリア
@@ -447,9 +454,10 @@ function App() {
         clearTimeout(tetoTimeoutRef.current);
       }
 
-      // 11秒後にメッセージを消す
+      // 11秒後にメッセージを消して猫ちゃんを寝かせる
       tetoTimeoutRef.current = setTimeout(() => {
         setTetoMessage(null);
+        setIsTetoAwake(false);
         tetoTimeoutRef.current = null;
       }, 11000);
     }
@@ -566,6 +574,7 @@ function App() {
       tetoTimeoutRef.current = null;
     }
     setTetoMessage(null);
+    setIsTetoAwake(false);
   };
 
   return (
@@ -830,9 +839,13 @@ function App() {
 
         {/* --- UIエリア --- */}
         <div className="ui-panel">
-          {/* 寝ている猫ちゃんアニメーション */}
+          {/* 猫ちゃんアニメーション */}
           <div className="sleeping-teto-container">
-            <div className="sleeping-teto-animation"></div>
+            <div
+              className={
+                isTetoAwake ? "blinking-teto-animation" : "sleeping-teto-animation"
+              }
+            ></div>
             {tetoMessage && (
               <div className="teto-speech-bubble">
                 <button
@@ -841,7 +854,7 @@ function App() {
                 >
                   ×
                 </button>
-                {tetoMessage}
+                <div dangerouslySetInnerHTML={{ __html: tetoMessage }} />
               </div>
             )}
           </div>
@@ -856,10 +869,18 @@ function App() {
           >
             {currentEra && (
               <div className="era-info">
-                <span className="era-label">{currentEra.label}</span>
-                <span className="era-description">
-                  {currentEra.description}
-                </span>
+                <span
+                  className="era-label"
+                  dangerouslySetInnerHTML={{
+                    __html: autoRuby(currentEra.label),
+                  }}
+                />
+                <span
+                  className="era-description"
+                  dangerouslySetInnerHTML={{
+                    __html: autoRuby(currentEra.description),
+                  }}
+                />
               </div>
             )}
             <div
@@ -870,11 +891,15 @@ function App() {
                 justifyContent: "center",
               }}
             >
-              <h1 className="year-display">{yearText}</h1>
+              <h1
+                className="year-display"
+                dangerouslySetInnerHTML={{ __html: autoRuby(yearText) }}
+              />
               {yearsAgoText && (
-                <span style={{ fontSize: "1rem", color: "#999" }}>
-                  {yearsAgoText}
-                </span>
+                <span
+                  style={{ fontSize: "1rem", color: "#999" }}
+                  dangerouslySetInnerHTML={{ __html: autoRuby(yearsAgoText) }}
+                />
               )}
             </div>
           </div>
