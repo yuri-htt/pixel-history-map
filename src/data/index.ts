@@ -50,6 +50,7 @@ export {
   getEraByYear,
   getSubPeriodsByYear,
   getAllSubPeriodsByYear,
+  getSubPeriodYears,
 } from "./utils";
 
 // 歴史データ

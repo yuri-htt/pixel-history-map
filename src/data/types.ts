@@ -113,8 +113,10 @@ export type Description = {
   content?: string;
   keyPoints?: KeyPoint[];
   detailContent?: DetailContent | null;
-  startYear: number;
-  endYear: number | null;
+  // startYearとendYearはeraSubPeriodsByRegionから取得するため不要
+  // 後方互換性のためオプショナルとして残す
+  startYear?: number;
+  endYear?: number | null;
 };
 
 export type Location = {

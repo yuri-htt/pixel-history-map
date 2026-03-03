@@ -38,9 +38,25 @@ export const locationsData: Location[] = [
         type: "making-tateana-house",
         size: "normal",
         startYear: -14000,
-        endYear: 300,
-        group: "定住生活",
+        endYear: 1000,
+        group: "半定住生活",
       },
+      // 弥生時代
+      //  "水田で稲を植えて育てる（田んぼに人が入り苗を植えるシーン）",
+      // "高床倉庫に米を運んで貯蔵する（はしごのある倉庫へ運ぶシーン）",
+      // "青銅器（銅鐸など）を鳴らして祭りをする（人が集まり儀礼をするシーン）"
+      // 古墳時代
+      //   "大きな古墳を土で盛って作る（人が土を運び盛り上げる工事シーン）",
+      // "馬に乗った人が行き来して力を示す（騎馬の行列・巡回シーン）",
+      // "鉄の道具や武器を作って使う（鍛冶で打つ→使うシーン）"
+      // 飛鳥時代
+      //   "役人が並び国のきまりを書き記す（木簡や巻物に記録するシーン）",
+      // "寺の塔や堂を建てる（大工が柱を組み立てる寺院建設シーン）",
+      // "使いの船が海を渡る（外国へ学びに向かう船の出航シーン）"
+      // 奈良時代
+      //   "碁盤の目の都で役人が行き交う（整った町並みを人が歩くシーン）",
+      // "大きな寺で大仏をつくる（巨大な像を人々が協力して造るシーン）",
+      // "戸籍や税の記録を書きまとめる（役人が木簡に記すシーン）"
     ],
     descriptions: [
       {
@@ -57,7 +73,10 @@ export const locationsData: Location[] = [
           },
           {
             type: "life",
-            text: `${ruby("狩", "か")}りや漁、${ruby("採集", "さいしゅう")}で食べ物を得ていた`,
+            text: `${ruby("狩", "か")}りや漁、${ruby(
+              "採集",
+              "さいしゅう",
+            )}で食べ物を得ていた`,
           },
           {
             type: "impact",
@@ -80,8 +99,126 @@ export const locationsData: Location[] = [
             },
           ],
         },
-        startYear: -14000,
-        endYear: -900,
+      },
+      {
+        eraId: "ancient",
+        subPeriodId: "yayoiPeriod",
+        title: "弥生時代",
+        period: "紀元前900年ごろ〜西暦250年ごろ",
+        image: null,
+        content:
+          "このころ、日本列島では米を育てるくらしが広がりました。食べ物をためられるようになり、村が大きくなっていきます。道具や作り方が地域に広がり、人のつながりも増えました。その一方で、村どうしの争いが起きることもありました。",
+        keyPoints: [
+          { type: "life", text: "米を育てるくらしが広がった" },
+          { type: "impact", text: "食べ物をためて村が大きくなった" },
+          { type: "culture", text: "祭りや道具づくりが発達した" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "米づくりの広がり",
+              text: "水を使った田んぼで米を育てる人が増えました。食べ物が安定し、同じ場所に長く住みやすくなります。道具や作業の工夫も広がっていきました。",
+            },
+            {
+              heading: "村の発展",
+              text: "村が大きくなり、米をしまう倉庫なども作られました。人の役割が分かれ、ものを作るのが得意な人も出てきます。村どうしの交流が増え、地域のまとまりが強くなります。",
+            },
+            {
+              heading: "祭りと争い",
+              text: "みんなで集まって行う祭りや行事が大切にされました。遠くの地域とつながることで、新しい道具や考え方も入ってきます。村どうしの争いが起きた跡が見つかることもあります。",
+            },
+          ],
+        },
+      },
+      {
+        eraId: "ancient",
+        subPeriodId: "kofunPeriod",
+        title: "古墳時代",
+        period: "西暦250年ごろ〜西暦600年ごろ",
+        image: null,
+        content:
+          "このころ、日本列島では力のある人たちが大きな墓を作るようになりました。地域のまとまりが強くなり、広い範囲で人や物の行き来が増えていきます。鉄の道具が広がり、くらしや戦いの形も変わっていきました。",
+        keyPoints: [
+          { type: "fact", text: "大きな墓（古墳）が各地に作られた" },
+          { type: "impact", text: "地域のまとまりが強くなり交流が増えた" },
+          { type: "life", text: "鉄の道具が広がりくらしが変わった" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "大きな墓を作る",
+              text: "土を盛って大きな墓を作る動きが広がりました。多くの人を集めて作れるほど、力を持つ人がいたことが分かります。作り方や形が似ている地域もあり、つながりが見えてきます。",
+            },
+            {
+              heading: "人や物の行き来",
+              text: "遠くの地域どうしでも、人や物の行き来が増えました。特に馬を使う移動が広がり、情報や道具が伝わりやすくなります。地域のまとまりも少しずつ大きくなっていきました。",
+            },
+            {
+              heading: "鉄の道具の広がり",
+              text: "鉄の道具や武器が広がり、農作業が進めやすくなりました。道具が強くなることで、生活の効率も上がっていきます。争いのしかたにも影響が出てきました。",
+            },
+          ],
+        },
+      },
+      {
+        eraId: "ancient",
+        subPeriodId: "asukaPeriod",
+        title: "飛鳥時代",
+        period: "西暦600年ごろ〜西暦710年ごろ",
+        image: null,
+        content:
+          "このころ、日本列島では国のしくみを整えようとする動きが強まりました。新しい教えや文化が海の向こうから伝わります。寺が建てられ、町のような場所もできはじめました。国としてまとまろうとする大きな変化の時代です。",
+        keyPoints: [
+          { type: "impact", text: "国のしくみを整える動きが進んだ" },
+          { type: "culture", text: "新しい教えや文化が広がった" },
+          { type: "fact", text: "寺や役所がつくられた" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "国づくりの始まり",
+              text: "人びとをまとめるためのきまりが作られました。役目を持つ人が決まり、国の形が少しずつ整います。力のある家どうしの争いもありました。",
+            },
+            {
+              heading: "新しい文化",
+              text: "海の向こうから新しい教えや技術が伝わりました。文字を使って記録することが広がります。建物や道具の作り方も変わっていきました。",
+            },
+            {
+              heading: "寺と都",
+              text: "大きな寺が建てられ、人びとが集まる場所になりました。町のようなまとまった場所も作られます。国の中心がはっきりしてきた時代です。",
+            },
+          ],
+        },
+      },
+      {
+        eraId: "ancient",
+        subPeriodId: "naraPeriod",
+        title: "奈良時代",
+        period: "西暦710年ごろ〜西暦794年ごろ",
+        image: null,
+        content:
+          "このころ、日本列島では大きな都がつくられました。国のきまりがさらに整えられ、役人が国を動かします。大きな寺や仏像がつくられ、人びとの心のよりどころになりました。国の形がはっきりした時代です。",
+        keyPoints: [
+          { type: "fact", text: "大きな都がつくられた" },
+          { type: "impact", text: "国のしくみが整えられた" },
+          { type: "culture", text: "大きな寺や仏像が作られた" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "都のくらし",
+              text: "まっすぐな道が並ぶ都がつくられました。役人や商人が集まり、にぎやかな町になりました。国の中心として多くの人が働いていました。",
+            },
+            {
+              heading: "国のきまり",
+              text: "人びとのくらしをまとめるためのきまりが整えられました。税や土地の管理も決められます。国を動かすしくみがはっきりしました。",
+            },
+            {
+              heading: "寺と文化",
+              text: "大きな寺や仏像がつくられました。人びとは新しい教えを大切にしました。文字や記録も広がり、文化が豊かになります。",
+            },
+          ],
+        },
       },
     ],
     position: "下",
@@ -143,12 +280,27 @@ export const locationsData: Location[] = [
         endYear: -3000,
         group: "家畜飼育",
       },
+      // 初期王朝の成立：earlyStateFormation
+      //   "土の城壁や堀をつくって集落を守る（人が土を運び固めるシーン）",
+      // "青銅の道具や武器を鋳造する（炉で金属を溶かして型に流すシーン）",
+      // "占いのために骨に文字を刻む（骨に刻んで火で割れを見るシーン）"
+      // 周の時代：zhouOrder
+      //   "王が家来に土地を分け与える（儀式で地図や旗を渡すシーン）",
+      // "戦車に乗った兵士が戦う（馬が引く車で進む戦いのシーン）",
+      // "学びの場で教えを語り合う（人々が集まり話を聞くシーン）"
+      // 統一帝国（秦漢）：imperialUnificationQinHan
+      //   "広い土地を一つにまとめて命令を出す（王の前に人々が並ぶシーン）",
+      // "長い城壁を人々が協力して築く（石や土を運び積み上げるシーン）",
+      // "同じ形の文字や道具を全国で使う（役人が同じ文字を書くシーン）"
     ],
     descriptions: [
       {
         eraId: "prehistoric",
         subPeriodId: "earlyNeolithic",
-        title: ruby("初期", "しょき") + ruby("新石器", "しんせっき") + ruby("時代", "じだい"),
+        title:
+          ruby("初期", "しょき") +
+          ruby("新石器", "しんせっき") +
+          ruby("時代", "じだい"),
         period: "紀元前8000年〜紀元前5000年ごろ",
         image: null,
         content:
@@ -174,8 +326,6 @@ export const locationsData: Location[] = [
             },
           ],
         },
-        startYear: -8000,
-        endYear: -5000,
       },
       {
         eraId: "prehistoric",
@@ -206,8 +356,6 @@ export const locationsData: Location[] = [
             },
           ],
         },
-        startYear: -5000,
-        endYear: -3000,
       },
       {
         eraId: "prehistoric",
@@ -238,14 +386,102 @@ export const locationsData: Location[] = [
             },
           ],
         },
-        startYear: -3000,
-        endYear: -1900,
+      },
+      {
+        eraId: "ancient",
+        subPeriodId: "earlyStateFormation",
+        title: "国家のはじまり",
+        period: "紀元前2000年ごろ〜紀元前1500年ごろ",
+        image: null,
+        content:
+          "黄河のまわりでは、大きな集落が生まれ、人びとをまとめる中心ができていきました。守りのための土の壁や堀が作られ、争いに備える動きも見えます。青銅の道具が広がり、くらしや戦いの力が強くなりました。人びとを動かすしくみが少しずつ形になります。",
+        keyPoints: [
+          { type: "impact", text: "人びとをまとめる中心が生まれた" },
+          { type: "fact", text: "土の壁や堀で集落を守る例がある" },
+          { type: "culture", text: "青銅の道具や占いの習わしが広がった" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "大きな集落へ",
+              text: "村が大きくなり、中心となる場所ができました。指示を出す人や、仕事を分け合うしくみが少しずつ増えます。人の集まりが強くまとまっていきました。",
+            },
+            {
+              heading: "守りと争い",
+              text: "集落のまわりに土の壁や堀を作る例が見つかっています。外からの攻撃に備える意識が高まったと考えられます。道具や武器も工夫されました。",
+            },
+            {
+              heading: "道具と考え方",
+              text: "青銅で作った道具が広がり、仕事の効率が上がりました。占いのために骨に印をつけるような習わしも見えます。人びとの考え方や決め方が形になっていきます。",
+            },
+          ],
+        },
+      },
+      {
+        eraId: "ancient",
+        subPeriodId: "zhouOrder",
+        title: "周の時代",
+        period: "紀元前1000年ごろ〜紀元前250年ごろ",
+        image: null,
+        content:
+          "このころ、黄河のまわりでは王を中心に広い地域をまとめるしくみが作られました。王は土地を分けて、家来たちに治めさせます。やがて多くの国が生まれ、争いも増えていきました。その中で、人の生き方や社会のあり方を考える教えも広がりました。",
+        keyPoints: [
+          { type: "impact", text: "広い地域をまとめるしくみができた" },
+          { type: "fact", text: "多くの国が生まれ争いが続いた" },
+          { type: "culture", text: "人の生き方を考える教えが広がった" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "土地を分けるしくみ",
+              text: "王は信頼する人に土地を任せました。それぞれが自分の地域を治めます。広い土地をまとめるための工夫でした。",
+            },
+            {
+              heading: "争いの時代",
+              text: "時がたつと、力を持つ国どうしが争うようになります。戦いの方法も工夫されました。多くの人が不安な時代を生きました。",
+            },
+            {
+              heading: "考え方の広がり",
+              text: "人はどう生きるべきか、国はどうあるべきかを考える動きが広がります。学ぶ人や教える人が現れました。後の時代に大きな影響を与えます。",
+            },
+          ],
+        },
+      },
+      {
+        eraId: "ancient",
+        subPeriodId: "imperialUnificationQinHan",
+        title: "統一の時代",
+        period: "紀元前200年ごろ〜西暦200年ごろ",
+        image: null,
+        content:
+          "このころ、黄河のまわりでは広い土地が一つにまとめられました。これまで分かれていた国々が、同じきまりのもとで動きます。文字や道具の形がそろえられ、人や物の行き来がしやすくなりました。大きな国が長く続く土台がつくられた時代です。",
+        keyPoints: [
+          { type: "impact", text: "広い土地が一つにまとめられた" },
+          { type: "fact", text: "文字や道具の形がそろえられた" },
+          { type: "life", text: "人や物の行き来が広がった" },
+        ],
+        detailContent: {
+          sections: [
+            {
+              heading: "広い国の誕生",
+              text: "多くの地域が一つにまとめられました。中心から命令が出され、各地がそれに従います。大きな国としての形が整いました。",
+            },
+            {
+              heading: "きまりをそろえる",
+              text: "文字や道具の形、はかり方などがそろえられました。同じやり方を使うことで、交流がしやすくなります。国全体が動きやすくなりました。",
+            },
+            {
+              heading: "道と守り",
+              text: "道が整えられ、人や物が遠くまで運ばれました。外からの攻撃を防ぐための壁も築かれます。大きな国を守る工夫が続きました。",
+            },
+          ],
+        },
       },
     ],
     position: "下",
   },
 
-  // ✅ 肥沃な三日月地帯
+  // ✅ 肥沃な三日月地帯メソポタミア
   {
     regionId: "fertileCrescent",
     name: "肥沃三日月",
@@ -334,8 +570,6 @@ export const locationsData: Location[] = [
             },
           ],
         },
-        startYear: -12500,
-        endYear: -9500,
       },
       {
         eraId: "prehistoric",
@@ -366,8 +600,6 @@ export const locationsData: Location[] = [
             },
           ],
         },
-        startYear: -10000,
-        endYear: -4000,
       },
     ],
     position: "上",
@@ -457,8 +689,6 @@ export const locationsData: Location[] = [
             },
           ],
         },
-        startYear: -4400,
-        endYear: -4000,
       },
     ],
     position: "左下",
@@ -548,10 +778,201 @@ export const locationsData: Location[] = [
             },
           ],
         },
-        startYear: -7000,
-        endYear: -2600,
       },
     ],
     position: "下",
+  },
+
+  // ✅ 西ヨーロッパ（中世の拠点）
+  {
+    regionId: "westernEuropeLatinChristendom",
+    name: "西欧キリスト督圏",
+    displayName:
+      ruby("西欧", "せいおう") +
+      ruby("キリスト", "きりすと") +
+      ruby("督圏", "とっけん"),
+    coordinates: [5, 48],
+    activities: [],
+    descriptions: [],
+    position: "左上",
+  },
+
+  // ✅ イスラーム文明圏（中世の拠点）
+  {
+    regionId: "islamicWorldCore",
+    name: "イスラーム圏",
+    displayName: "イスラーム" + ruby("圏", "けん"),
+    coordinates: [45, 33],
+    activities: [],
+    descriptions: [],
+    position: "左",
+  },
+
+  // ✅ 東アジア文明圏（中世の拠点）
+  {
+    regionId: "eastAsiaCivilizationSphere",
+    name: "東アジア圏",
+    displayName: ruby("東", "ひがし") + "アジア",
+    coordinates: [115, 35],
+    activities: [],
+    descriptions: [],
+    position: "右上",
+  },
+
+  // ✅ ユーラシア草原地帯（中世の拠点）
+  {
+    regionId: "steppeEurasia",
+    name: "ユーラ草原",
+    displayName: ruby("ユーラ", "ゆーら") + ruby("草原", "そうげん"),
+    coordinates: [80, 45],
+    activities: [],
+    descriptions: [],
+    position: "上",
+  },
+
+  // ✅ 大西洋世界（近世の拠点）
+  {
+    regionId: "atlanticWorld",
+    name: "大西洋圏",
+    displayName:
+      ruby("大", "たい") +
+      ruby("西", "せい") +
+      ruby("洋", "よう") +
+      ruby("圏", "けん"),
+    coordinates: [-30, 20],
+    activities: [],
+    descriptions: [],
+    position: "左",
+  },
+
+  // ✅ イベリア航海圏（近世の拠点）
+  {
+    regionId: "iberianMaritimeSphere",
+    name: "イベリア航海圏",
+    displayName: "イベリア" + ruby("航海", "こうかい") + ruby("圏", "けん"),
+    coordinates: [-6, 39],
+    activities: [],
+    descriptions: [],
+    position: "左上",
+  },
+
+  // ✅ インド洋交易圏（近世の拠点）
+  {
+    regionId: "indianOceanTrade",
+    name: "印洋交易圏",
+    displayName:
+      ruby("印", "いん") +
+      ruby("洋", "よう") +
+      ruby("交易", "こうえき") +
+      ruby("圏", "けん"),
+    coordinates: [70, 5],
+    activities: [],
+    descriptions: [],
+    position: "下",
+  },
+
+  // ✅ 東アジア海域（近世の拠点）
+  {
+    regionId: "eastAsiaMaritime",
+    name: "東ア海域",
+    displayName:
+      ruby("東", "ひがし") + "アジア" + ruby("海", "かい") + ruby("域", "いき"),
+    coordinates: [125, 25],
+    activities: [],
+    descriptions: [],
+    position: "右",
+  },
+
+  // ✅ ブリテン諸島（近代の拠点）
+  {
+    regionId: "britishIslesIndustrial",
+    name: "ブリテン圏",
+    displayName: "ブリテン" + ruby("圏", "けん"),
+    coordinates: [-2, 54],
+    activities: [],
+    descriptions: [],
+    position: "左上",
+  },
+
+  // ✅ 大陸西ヨーロッパ（近代の拠点）
+  {
+    regionId: "continentalWestEurope",
+    name: "大陸西欧",
+    displayName: ruby("大陸", "たいりく") + ruby("西欧", "せいおう"),
+    coordinates: [7, 47],
+    activities: [],
+    descriptions: [],
+    position: "左",
+  },
+
+  // ✅ 北米東岸（近代の拠点）
+  {
+    regionId: "northAmericaAtlantic",
+    name: "北米東岸",
+    displayName:
+      ruby("北", "ほく") + ruby("米", "べい") + ruby("東岸", "とうがん"),
+    coordinates: [-77, 39],
+    activities: [],
+    descriptions: [],
+    position: "右",
+  },
+
+  // ✅ 東アジア沿岸（近代の拠点）
+  {
+    regionId: "eastAsiaCoastal",
+    name: "東ア沿岸",
+    displayName: ruby("東", "ひがし") + "アジア" + ruby("沿岸", "えんがん"),
+    coordinates: [125, 35],
+    activities: [],
+    descriptions: [],
+    position: "右上",
+  },
+
+  // ✅ 北大西洋圏（現代の拠点）
+  {
+    regionId: "northAtlanticBloc",
+    name: "北大西洋",
+    displayName: ruby("北", "きた") + ruby("大西洋", "たいせいよう"),
+    coordinates: [-30, 45],
+    activities: [],
+    descriptions: [],
+    position: "上",
+  },
+
+  // ✅ 東欧〜ユーラシア内陸圏（現代の拠点）
+  {
+    regionId: "easternEuropeEurasiaBloc",
+    name: "東欧ユーラ",
+    displayName: ruby("東欧", "とうおう") + "ユーラ",
+    coordinates: [40, 55],
+    activities: [],
+    descriptions: [],
+    position: "上",
+  },
+
+  // ✅ 西ヨーロッパ統合圏（現代の拠点）
+  {
+    regionId: "europeanIntegrationZone",
+    name: "西欧統合",
+    displayName: ruby("西欧", "せいおう") + ruby("統合", "とうごう"),
+    coordinates: [8, 50],
+    activities: [],
+    descriptions: [],
+    position: "左上",
+  },
+
+  // ✅ 東アジア経済圏（現代の拠点）
+  {
+    regionId: "eastAsiaEconomicSphere",
+    name: "東ア経済圏",
+    displayName:
+      ruby("東", "ひがし") +
+      "アジア" +
+      ruby("経済", "けいざい") +
+      ruby("圏", "けん"),
+    coordinates: [125, 30],
+    activities: [],
+    descriptions: [],
+    position: "右",
   },
 ];

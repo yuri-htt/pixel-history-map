@@ -97,10 +97,28 @@ export const eraSubPeriodsByRegion = {
     ancient: {
       subPeriods: [
         {
-          id: "yayoi",
+          id: "yayoiPeriod",
           label: "弥生時代",
           defaultStartYear: -900,
-          defaultEndYear: 300,
+          defaultEndYear: 250,
+        },
+        {
+          id: "kofunPeriod",
+          label: "古墳時代",
+          defaultStartYear: 250,
+          defaultEndYear: 600,
+        },
+        {
+          id: "asukaPeriod",
+          label: "飛鳥時代",
+          defaultStartYear: 600,
+          defaultEndYear: 710,
+        },
+        {
+          id: "naraPeriod",
+          label: "奈良時代",
+          defaultStartYear: 710,
+          defaultEndYear: 794,
         },
       ],
     },
@@ -114,14 +132,50 @@ export const eraSubPeriodsByRegion = {
     prehistoric: {
       subPeriods: [
         {
+          id: "earlyNeolithic",
+          label:
+            ruby("初期", "しょき") +
+            ruby("新石器", "しんせっき") +
+            ruby("時代", "じだい"),
+          defaultStartYear: -8000,
+          defaultEndYear: -5000,
+        },
+        {
           id: "yangshao",
           label: ruby("仰韶", "ぎょうしょう") + "文化",
           defaultStartYear: -5000,
           defaultEndYear: -3000,
         },
+        {
+          id: "longshanCulture",
+          label: ruby("龍山", "りゅうざん") + ruby("文化", "ぶんか"),
+          defaultStartYear: -3000,
+          defaultEndYear: -2000,
+        },
       ],
     },
-    ancient: { subPeriods: [] },
+    ancient: {
+      subPeriods: [
+        {
+          id: "earlyStateFormation",
+          label: "初期王朝の成立",
+          defaultStartYear: -2000,
+          defaultEndYear: -1500,
+        },
+        {
+          id: "zhouOrder",
+          label: "周の時代",
+          defaultStartYear: -1000,
+          defaultEndYear: -250,
+        },
+        {
+          id: "imperialUnificationQinHan",
+          label: "統一帝国（秦漢）",
+          defaultStartYear: -250,
+          defaultEndYear: 200,
+        },
+      ],
+    },
     medieval: { subPeriods: [] },
     earlyModern: { subPeriods: [] },
     modern: { subPeriods: [] },
@@ -145,7 +199,28 @@ export const eraSubPeriodsByRegion = {
         },
       ],
     },
-    ancient: { subPeriods: [] },
+    ancient: {
+      subPeriods: [
+        {
+          id: "earlyMesopotamiaStates",
+          label: "初期メソポタミア",
+          defaultStartYear: -3000,
+          defaultEndYear: -2000,
+        },
+        {
+          id: "babyloniaAssyriaEra",
+          label: "バビロニアとアッシリア",
+          defaultStartYear: -2000,
+          defaultEndYear: -539,
+        },
+        {
+          id: "achaemenidPersia",
+          label: "アケメネス朝",
+          defaultStartYear: -539,
+          defaultEndYear: 500,
+        },
+      ],
+    },
     medieval: { subPeriods: [] },
     earlyModern: { subPeriods: [] },
     modern: { subPeriods: [] },
@@ -163,7 +238,28 @@ export const eraSubPeriodsByRegion = {
         },
       ],
     },
-    ancient: { subPeriods: [] },
+    ancient: {
+      subPeriods: [
+        {
+          id: "earlyDynasticAndOldKingdom",
+          label: "初期王朝〜古王国",
+          defaultStartYear: -3000,
+          defaultEndYear: -2181,
+        },
+        {
+          id: "middleAndNewKingdom",
+          label: "中王国〜新王国",
+          defaultStartYear: -2055,
+          defaultEndYear: -1070,
+        },
+        {
+          id: "lateAndForeignRule",
+          label: "末期王朝〜外来支配",
+          defaultStartYear: -664,
+          defaultEndYear: 500,
+        },
+      ],
+    },
     medieval: { subPeriods: [] },
     earlyModern: { subPeriods: [] },
     modern: { subPeriods: [] },
@@ -181,7 +277,22 @@ export const eraSubPeriodsByRegion = {
         },
       ],
     },
-    ancient: { subPeriods: [] },
+    ancient: {
+      subPeriods: [
+        {
+          id: "indusCivilization",
+          label: "インダス文明",
+          defaultStartYear: -2600,
+          defaultEndYear: -1900,
+        },
+        {
+          id: "postIndusTransition",
+          label: "文明衰退後",
+          defaultStartYear: -1900,
+          defaultEndYear: 500,
+        },
+      ],
+    },
     medieval: { subPeriods: [] },
     earlyModern: { subPeriods: [] },
     modern: { subPeriods: [] },

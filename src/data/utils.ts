@@ -65,7 +65,8 @@ export function getEraDefinition(eraId: EraId) {
 export function getEraByYear(year: number) {
   return eraDefinitions.find((era) => {
     const afterStart = year >= era.startYear;
-    const beforeEnd = era.endYear === null || year <= era.endYear;
+    // endYearは次の時代のstartYearと同じなので、境界では次の時代に含める
+    const beforeEnd = era.endYear === null || year < era.endYear;
     return afterStart && beforeEnd;
   });
 }
@@ -106,4 +107,25 @@ export function getAllSubPeriodsByYear(
     const beforeEnd = sp.defaultEndYear === null || year <= sp.defaultEndYear;
     return afterStart && beforeEnd;
   });
+}
+
+/**
+ * 指定した地域、時代区分、サブ時代IDから開始年と終了年を取得
+ * @param regionId - 地域ID
+ * @param eraId - 時代区分ID
+ * @param subPeriodId - サブ時代ID
+ * @returns { startYear, endYear } または undefined
+ */
+export function getSubPeriodYears(
+  regionId: RegionId,
+  eraId: EraId,
+  subPeriodId: string,
+): { startYear: number; endYear: number | null } | undefined {
+  const subPeriod = getSubPeriod(regionId, eraId, subPeriodId);
+  if (!subPeriod) return undefined;
+
+  return {
+    startYear: subPeriod.defaultStartYear,
+    endYear: subPeriod.defaultEndYear,
+  };
 }
