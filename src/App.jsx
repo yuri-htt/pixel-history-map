@@ -22,6 +22,7 @@ import {
   eraDefinitions,
   getEraByYear,
   autoRuby,
+  getSubPeriodYears,
 } from "./data";
 
 // 世界地図データ
@@ -173,11 +174,11 @@ const yearToSlider = (year) => {
     // 紀元前の場合
     const progress = (year + 14000) / 14000;
     const sliderRatio = Math.sqrt(progress); // 平方根で逆変換
-    return Math.round(sliderRatio * 50);
+    return sliderRatio * 50; // 丸めずに小数を返す
   } else {
     // 紀元後の場合
     const progress = (year - 1) / 2025;
-    return Math.round(50 + progress * 50);
+    return 50 + progress * 50; // 丸めずに小数を返す
   }
 };
 
@@ -187,6 +188,19 @@ const filterActivitiesByYear = (activities, currentYear) => {
     const isAfterStart = currentYear >= activity.startYear;
     const isBeforeEnd =
       activity.endYear === null || currentYear <= activity.endYear;
+    return isAfterStart && isBeforeEnd;
+  });
+};
+
+// 年代に応じてdescriptionsをフィルタリングする関数
+// eraSubPeriodsByRegionから年代情報を取得する
+const filterDescriptionsByYear = (descriptions, currentYear, regionId) => {
+  return descriptions.filter((description) => {
+    const years = getSubPeriodYears(regionId, description.eraId, description.subPeriodId);
+    if (!years) return false;
+
+    const isAfterStart = currentYear >= years.startYear;
+    const isBeforeEnd = years.endYear === null || currentYear <= years.endYear;
     return isAfterStart && isBeforeEnd;
   });
 };
@@ -326,10 +340,14 @@ function App() {
   const [prevYear, setPrevYear] = useState(-14000);
   // 地球儀の回転角度を管理 [経度, 緯度, ロール]
   const [rotation, setRotation] = useState([-80, 0, 0]);
-  // ドラッグ状態
+  // 地球儀のドラッグ状態
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [rotationStart, setRotationStart] = useState([-80, 0, 0]);
+  // スライダーのドラッグ状態
+  const [isSliderDragging, setIsSliderDragging] = useState(false);
+  const [sliderDragStart, setSliderDragStart] = useState({ x: 0, value: 0 });
+  const sliderContainerRef = useRef(null);
   // hover中のアニメーションを管理 (animKey, animType)
   const [hoveredAnimation, setHoveredAnimation] = useState(null);
   // ツールチップの位置を管理
@@ -340,6 +358,10 @@ function App() {
   const tetoTimeoutRef = useRef(null);
   // 猫ちゃんが起きているかどうか
   const [isTetoAwake, setIsTetoAwake] = useState(false);
+  // 時代タブのコンテナRef
+  const eraTabsContainerRef = useRef(null);
+  // プログラムによるスクロール中かどうかのフラグ
+  const isProgrammaticScrollRef = useRef(false);
 
   // スライダー値から年代を計算
   const year = useMemo(() => sliderToYear(sliderValue), [sliderValue]);
@@ -375,7 +397,7 @@ function App() {
       ...location,
       animations: filterActivitiesByYear(location.activities, year),
       currentDescription: location.descriptions
-        ? filterActivitiesByYear(location.descriptions, year)[0]
+        ? filterDescriptionsByYear(location.descriptions, year, location.regionId)[0]
         : null,
     }));
   }, [year]);
@@ -515,6 +537,196 @@ function App() {
     }
   }, [isDragging, dragStart, rotationStart]);
 
+  // スライダーのドラッグイベント
+  const handleSliderMouseDown = (e) => {
+    setIsSliderDragging(true);
+    setSliderDragStart({
+      x: e.clientX,
+      scrollLeft: sliderContainerRef.current.scrollLeft,
+    });
+  };
+
+  const handleSliderMouseMove = (e) => {
+    if (!isSliderDragging) return;
+
+    const deltaX = e.clientX - sliderDragStart.x;
+    // ドラッグした距離分だけスクロール位置を変更
+    sliderContainerRef.current.scrollLeft = sliderDragStart.scrollLeft - deltaX;
+  };
+
+  const handleSliderMouseUp = () => {
+    setIsSliderDragging(false);
+  };
+
+  // スライダーのグローバルなマウスイベントを設定
+  useEffect(() => {
+    if (isSliderDragging) {
+      window.addEventListener("mousemove", handleSliderMouseMove);
+      window.addEventListener("mouseup", handleSliderMouseUp);
+      return () => {
+        window.removeEventListener("mousemove", handleSliderMouseMove);
+        window.removeEventListener("mouseup", handleSliderMouseUp);
+      };
+    }
+  }, [isSliderDragging, sliderDragStart]);
+
+  // スクロール位置から年を計算する関数
+  const calculateYearFromScroll = () => {
+    if (!sliderContainerRef.current) return year;
+
+    const container = sliderContainerRef.current;
+    const wrapper = container.querySelector('.slider-wrapper');
+    if (!wrapper) return year;
+
+    // コンテナの幅と中央位置
+    const containerWidth = container.offsetWidth;
+    const centerX = containerWidth / 2;
+
+    // スクロール位置と中央のX座標を計算
+    const scrollLeft = container.scrollLeft;
+    const centerScrollX = scrollLeft + centerX;
+
+    // ラッパーの幅とパディング
+    const wrapperWidth = wrapper.offsetWidth;
+    const wrapperStyle = getComputedStyle(wrapper);
+    const paddingLeft = parseFloat(wrapperStyle.paddingLeft) || 0;
+
+    // スライダーの実際の範囲（パディングを除く）
+    const sliderStart = paddingLeft;
+    const sliderEnd = wrapperWidth - paddingLeft;
+    const sliderWidth = sliderEnd - sliderStart;
+
+    // 中央マークがスライダーのどの位置にあるか（0-100のパーセント）
+    const relativePosition = Math.max(0, Math.min(100,
+      ((centerScrollX - sliderStart) / sliderWidth) * 100
+    ));
+
+    // パーセントから年を計算
+    return sliderToYear(relativePosition);
+  };
+
+  // スクロールイベントで年を更新
+  useEffect(() => {
+    const container = sliderContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      // プログラムによるスクロール中は状態を更新しない
+      if (isProgrammaticScrollRef.current) {
+        return;
+      }
+
+      const newYear = calculateYearFromScroll();
+      const newSliderValue = yearToSlider(newYear);
+      setSliderValue(newSliderValue);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 指定した年が中央に来るようにスクロールする関数
+  const scrollToYear = (targetYear, smooth = true) => {
+    if (!sliderContainerRef.current) return;
+
+    const container = sliderContainerRef.current;
+    const wrapper = container.querySelector('.slider-wrapper');
+    if (!wrapper) return;
+
+    // プログラムによるスクロールフラグを設定
+    isProgrammaticScrollRef.current = true;
+
+    // 目標の年に対応するスライダー値を計算して状態を更新
+    const targetSliderValue = yearToSlider(targetYear);
+    setSliderValue(targetSliderValue);
+
+    // ラッパーの幅とパディング
+    const wrapperWidth = wrapper.offsetWidth;
+    const wrapperStyle = getComputedStyle(wrapper);
+    const paddingLeft = parseFloat(wrapperStyle.paddingLeft) || 0;
+
+    // スライダーの実際の範囲
+    const sliderStart = paddingLeft;
+    const sliderEnd = wrapperWidth - paddingLeft;
+    const sliderWidth = sliderEnd - sliderStart;
+
+    // 目標位置を計算
+    const targetPosition = (targetSliderValue / 100) * sliderWidth + sliderStart;
+
+    // コンテナの中央位置
+    const containerWidth = container.offsetWidth;
+    const centerX = containerWidth / 2;
+
+    // 中央に来るようにスクロール
+    const scrollLeft = targetPosition - centerX;
+
+    if (smooth) {
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth',
+      });
+      // スムーズスクロールの場合、アニメーション終了後にフラグをクリア
+      // スクロールアニメーションの完了を待つ（1000msに延長）
+      setTimeout(() => {
+        isProgrammaticScrollRef.current = false;
+      }, 1000);
+    } else {
+      container.scrollLeft = scrollLeft;
+      // 即座のスクロールの場合、少し遅延させてからフラグをクリア
+      setTimeout(() => {
+        isProgrammaticScrollRef.current = false;
+      }, 100);
+    }
+  };
+
+  // マーカー要素を中央にスクロールする関数
+  const scrollToMarker = (markerElement) => {
+    if (!sliderContainerRef.current || !markerElement) return;
+
+    const container = sliderContainerRef.current;
+    const wrapper = container.querySelector('.slider-wrapper');
+    if (!wrapper) return;
+
+    // プログラムによるスクロールフラグを設定
+    isProgrammaticScrollRef.current = true;
+
+    // コンテナの幅と中央位置
+    const containerWidth = container.offsetWidth;
+    const centerX = containerWidth / 2;
+
+    // 現在のスクロール位置
+    const currentScrollLeft = container.scrollLeft;
+
+    // コンテナとマーカーの位置を取得
+    const containerRect = container.getBoundingClientRect();
+    const markerRect = markerElement.getBoundingClientRect();
+
+    // マーカーの現在の画面上での位置（コンテナ左端からの距離）
+    const markerOffsetFromContainerLeft = markerRect.left - containerRect.left;
+
+    // マーカーが中央に来るために必要なスクロール量
+    const targetScrollLeft = currentScrollLeft + markerOffsetFromContainerLeft - centerX;
+
+    container.scrollTo({
+      left: targetScrollLeft,
+      behavior: 'smooth',
+    });
+
+    // スムーズスクロールなので、アニメーション終了後にフラグをクリア
+    setTimeout(() => {
+      isProgrammaticScrollRef.current = false;
+    }, 1000);
+  };
+
+  // 初期表示時に開始年（-14000年）を中央にスクロール
+  useEffect(() => {
+    // 少し遅延させてDOMが完全にレンダリングされてから実行
+    const timer = setTimeout(() => {
+      scrollToYear(-14000, false); // スムーズスクロールなし
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   // 拠点が地球の表側にあるかどうかを判定
   const isLocationVisible = (coordinates) => {
     const [lon, lat] = coordinates;
@@ -576,6 +788,51 @@ function App() {
     setTetoMessage(null);
     setIsTetoAwake(false);
   };
+
+  // アクティブな時代タブを中央にスクロールする関数
+  const scrollEraTabToCenter = (eraId) => {
+    if (!eraTabsContainerRef.current) return;
+
+    const container = eraTabsContainerRef.current;
+    const activeTab = container.querySelector(`[data-era-id="${eraId}"]`);
+    if (!activeTab) return;
+
+    const containerWidth = container.offsetWidth;
+    const centerX = containerWidth / 2;
+    const currentScrollLeft = container.scrollLeft;
+
+    const containerRect = container.getBoundingClientRect();
+    const tabRect = activeTab.getBoundingClientRect();
+
+    const tabOffsetFromContainerLeft = tabRect.left - containerRect.left;
+    const tabCenter = tabOffsetFromContainerLeft + tabRect.width / 2;
+
+    const targetScrollLeft = currentScrollLeft + tabCenter - centerX;
+
+    container.scrollTo({
+      left: targetScrollLeft,
+      behavior: 'smooth',
+    });
+  };
+
+  // 前回の時代を追跡するref
+  const prevEraRef = useRef(null);
+
+  // 時代が変わったらタブをスクロール（ただしプログラムによるスクロール中は除く）
+  useEffect(() => {
+    if (currentEra && prevEraRef.current !== currentEra.id) {
+      prevEraRef.current = currentEra.id;
+
+      // プログラムによるスクロール中でない場合のみタブをスクロール
+      // （つまり、ユーザーが手動でスライダーを動かした場合のみ）
+      if (!isProgrammaticScrollRef.current) {
+        const timer = setTimeout(() => {
+          scrollEraTabToCenter(currentEra.id);
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [currentEra]);
 
   return (
     <div className="app-container">
@@ -838,6 +1095,9 @@ function App() {
         </div>
 
         {/* --- UIエリア --- */}
+        {/* 中央固定の現在位置インジケーター */}
+        <div className="timeline-indicator"></div>
+
         <div className="ui-panel">
           {/* 猫ちゃんアニメーション */}
           <div className="sleeping-teto-container">
@@ -859,36 +1119,52 @@ function App() {
             )}
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            {currentEra && (
-              <div className="era-info">
-                <span
-                  className="era-label"
-                  dangerouslySetInnerHTML={{
-                    __html: autoRuby(currentEra.label),
-                  }}
-                />
-                <span
-                  className="era-description"
-                  dangerouslySetInnerHTML={{
-                    __html: autoRuby(currentEra.description),
-                  }}
-                />
+          {/* 年代と時代情報 */}
+          <div className="ui-panel-info">
+            {/* 時代区分タブ */}
+            <div className="era-tabs-container" ref={eraTabsContainerRef}>
+              <div className="era-tabs-wrapper">
+                {eraDefinitions.map((era) => {
+                  const isActive = currentEra && currentEra.id === era.id;
+                  return (
+                    <div
+                      key={era.id}
+                      data-era-id={era.id}
+                      className={`era-tab ${isActive ? 'active' : ''}`}
+                      onClick={() => {
+                        // その時代の開始年にジャンプ
+                        const targetYear = era.startYear;
+                        // scrollToYearが内部でsliderValueを計算して設定する
+                        scrollToYear(targetYear);
+
+                        // タブも中央にスクロール（少し遅延させてDOMの更新を待つ）
+                        setTimeout(() => {
+                          scrollEraTabToCenter(era.id);
+                        }, 150);
+                      }}
+                    >
+                      <div className="era-tab-label">
+                        {era.label}
+                      </div>
+                      {isActive && (
+                        <div className="era-tab-description">
+                          {era.description}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
+
+            {/* 年代表示 */}
             <div
               style={{
                 display: "flex",
                 alignItems: "baseline",
                 gap: "12px",
                 justifyContent: "center",
+                marginTop: "16px",
               }}
             >
               <h1
@@ -905,69 +1181,70 @@ function App() {
           </div>
 
           {/* スライダーと時代区分の目印 */}
-          <div className="slider-container">
-            {/* 時代区分の目印（暖色） */}
-            <div className="era-markers">
-              <div
-                className="era-marker"
-                style={{ left: `${yearToSlider(-3000)}%` }}
-                onClick={() => setSliderValue(yearToSlider(-3000))}
-              >
-                <div className="era-marker-dot era"></div>
-              </div>
-              <div
-                className="era-marker"
-                style={{ left: `${yearToSlider(500)}%` }}
-                onClick={() => setSliderValue(yearToSlider(500))}
-              >
-                <div className="era-marker-dot era"></div>
-              </div>
-              <div
-                className="era-marker"
-                style={{ left: `${yearToSlider(1500)}%` }}
-                onClick={() => setSliderValue(yearToSlider(1500))}
-              >
-                <div className="era-marker-dot era"></div>
-              </div>
-              <div
-                className="era-marker"
-                style={{ left: `${yearToSlider(1800)}%` }}
-                onClick={() => setSliderValue(yearToSlider(1800))}
-              >
-                <div className="era-marker-dot era"></div>
-              </div>
-              <div
-                className="era-marker"
-                style={{ left: `${yearToSlider(1945)}%` }}
-                onClick={() => setSliderValue(yearToSlider(1945))}
-              >
-                <div className="era-marker-dot era"></div>
-              </div>
-            </div>
-
-            {/* アニメーション登場タイミングの目印（グレー・小さめ） */}
-            <div className="activity-markers">
-              {activityStartYears.map((startYear) => (
-                <div
-                  key={startYear}
-                  className="activity-marker"
-                  style={{ left: `${yearToSlider(startYear)}%` }}
-                  onClick={() => setSliderValue(yearToSlider(startYear))}
-                >
-                  <div className="activity-marker-dot"></div>
+          <div
+            className="slider-container"
+            ref={sliderContainerRef}
+            onMouseDown={handleSliderMouseDown}
+            style={{ cursor: isSliderDragging ? "grabbing" : "ew-resize" }}
+          >
+            <div className="slider-wrapper">
+              {/* 内側のコンテンツラッパー（パディングなし、マーカーの基準） */}
+              <div className="slider-content">
+                {/* 時代区分の目印（暖色） */}
+                <div className="era-markers">
+                  {eraDefinitions.slice(1).filter((era) => {
+                    const pos = yearToSlider(era.startYear);
+                    // スライダー範囲（0-100%）内のみ表示
+                    return pos >= 0 && pos <= 100;
+                  }).map((era) => (
+                    <div
+                      key={era.id}
+                      className="era-marker"
+                      style={{ left: `${yearToSlider(era.startYear)}%` }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        scrollToYear(era.startYear);
+                      }}
+                    >
+                      <div className="era-marker-dot era"></div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="0.1"
-              value={sliderValue}
-              onChange={(e) => setSliderValue(parseFloat(e.target.value))}
-              className="timeline-slider"
-            />
+                {/* アニメーション登場タイミングの目印（グレー・小さめ） */}
+                <div className="activity-markers">
+                  {activityStartYears.filter((startYear) => {
+                    // スライダーの表示範囲（-14000〜2026年）内のみ表示
+                    return startYear >= -14000 && startYear <= 2026;
+                  }).map((startYear) => {
+                    const pos = yearToSlider(startYear);
+                    return (
+                      <div
+                        key={startYear}
+                        className="activity-marker"
+                        style={{ left: `${pos}%` }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          scrollToYear(startYear);
+                        }}
+                      >
+                        <div className="activity-marker-dot"></div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={sliderValue}
+                  onChange={(e) => setSliderValue(parseFloat(e.target.value))}
+                  className="timeline-slider"
+                />
+              </div>
+            </div>
           </div>
 
           <p className="description">スライダーを動かして歴史を観測しよう</p>

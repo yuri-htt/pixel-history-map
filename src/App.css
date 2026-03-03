@@ -70,28 +70,64 @@ body,
 /* 操作パネルエリア */
 .ui-panel {
   position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 95%;
-  max-width: 1200px;
-  padding: 24px 32px;
-  background: rgba(40, 40, 40, 0.9) !important;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 20px 0;
+  background: rgba(40, 40, 40, 0.95) !important;
   color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   z-index: 1001;
   pointer-events: auto;
+  overflow: visible;
 }
+
+/* 年代と時代情報のコンテナ */
+.ui-panel-info {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 40px;
+  margin-bottom: 16px;
+}
+
 /* スライダーコンテナ */
 .slider-container {
-  width: 98%;
+  width: 100%;
   position: relative;
-  margin-top: 30px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 20px 0;
+  cursor: ew-resize; /* 両矢印カーソル */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.slider-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.slider-container:active {
+  cursor: ew-resize;
+}
+
+/* スライダーの内側ラッパー（実際の長いタイムライン） */
+.slider-wrapper {
+  position: relative;
+  width: 300%; /* 画面の3倍の長さ */
+  min-width: 2000px;
+  padding: 0 50%;
+}
+
+/* スライダーのコンテンツ領域（マーカーの基準となる） */
+.slider-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 /* 寝ている猫ちゃんアニメーション */
@@ -123,6 +159,26 @@ body,
   }
 }
 
+/* 起きて瞬きする猫ちゃんアニメーション */
+.blinking-teto-animation {
+  width: 80px;
+  height: 80px;
+  background-image: url("/blinking-teto.png");
+  background-size: calc(80px * 4) 80px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  animation: blinking-teto-cycle 1.2s steps(3) forwards;
+}
+
+@keyframes blinking-teto-cycle {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: calc(80px * -3) 0;
+  }
+}
+
 /* 猫ちゃんの吹き出し */
 .teto-speech-bubble {
   position: absolute;
@@ -143,7 +199,17 @@ body,
   text-align: center;
   word-wrap: break-word;
   line-height: 1.5;
-  white-space: pre-line;
+}
+
+/* 吹き出し内のルビスタイル */
+.teto-speech-bubble ruby {
+  ruby-position: over;
+}
+
+.teto-speech-bubble rt {
+  font-size: 0.5em;
+  color: inherit;
+  opacity: 0.8;
 }
 
 /* 猫ちゃんの吹き出しの閉じるボタン */
@@ -196,15 +262,67 @@ body,
 .timeline-slider {
   width: 100%;
   margin: 0;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #555 0%, #888 100%);
+  border-radius: 4px;
+  outline: none;
+  cursor: ew-resize;
+  pointer-events: none; /* スライダー自体はクリック不可 */
+}
+
+/* スライダーのハンドル（つまみ）を非表示 */
+.timeline-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.timeline-slider::-moz-range-thumb {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  border: none;
+}
+
+/* 中央固定の現在位置インジケーター */
+.timeline-indicator {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 70px; /* ui-panelの高さに応じて調整 */
+  width: 3px;
+  height: 40px;
+  background: #00ffcc;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
+  pointer-events: none;
+  z-index: 1003;
+}
+
+.timeline-indicator::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 12px solid #00ffcc;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 204, 0.6));
 }
 
 /* 時代区分の目印 */
 .era-markers {
   position: absolute;
-  top: -10px;
+  top: -16px;
   left: 0;
   width: 100%;
-  height: 10px;
+  height: 16px;
   pointer-events: none;
   z-index: 2;
 }
@@ -925,6 +1043,84 @@ body,
 .era-description {
   font-size: 0.9rem;
   color: #ccc;
+}
+
+/* 時代区分タブ */
+.era-tabs-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  padding: 8px 0;
+}
+
+.era-tabs-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.era-tabs-wrapper {
+  display: flex;
+  gap: 12px;
+  padding: 0 20px;
+  min-width: min-content;
+}
+
+.era-tab {
+  flex-shrink: 0;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+}
+
+.era-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 165, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.era-tab.active {
+  background: rgba(255, 165, 0, 0.15);
+  border-color: #ffa500;
+  box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.era-tab-label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffa500;
+  margin-bottom: 0;
+  transition: all 0.3s ease;
+}
+
+.era-tab.active .era-tab-label {
+  color: #ffb733;
+  text-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+}
+
+.era-tab-description {
+  font-size: 0.75rem;
+  color: #ccc;
+  margin-top: 6px;
+  line-height: 1.4;
+  animation: fadeInDescription 0.3s ease-out;
+}
+
+@keyframes fadeInDescription {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 100px;
+  }
 }
 
 /* 説明文 */
